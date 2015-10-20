@@ -8,6 +8,7 @@ import requests
 import traceback
 from bs4 import BeautifulSoup
 from datetime import datetime
+from custom_utils.exceptions import *
 
 
 class CustomUtils:
