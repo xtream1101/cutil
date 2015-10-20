@@ -11,6 +11,9 @@ This package is created for use with most of my scripts. It is comprised of cust
 ### For sql.py
 - [SQLAlchemy](https://pypi.python.org/pypi/SQLAlchemy)
 
+## Install
+- Download/clone the repo and run `python3 setup.py install`
+
 ## Usage
 ```python
 from custom_utils.custom_utils import CustomUtils
