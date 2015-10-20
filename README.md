@@ -43,7 +43,7 @@ def sql_setup(self):
 ```
 This will setup a table in an sqlite database called `settings` which has the fields `field` & `value` with the rows for the `db_version` that you passed and a `progress` which will start at `-1`
 
-You can even add your own tables like this by adding it to your file:
+You can even add your own tables like this by adding it to your file:  
 ```python
 class Data(Base):
     __tablename__ = 'data'
