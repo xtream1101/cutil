@@ -91,6 +91,23 @@ class CustomUtils:
         path = os.path.normpath(path)
         return path
 
+    def create_hashed_path(self, base_path, name):
+        """
+        Create a directory structure using the hashed filename
+        :return: string of the path to save to not including filename/ext
+        """
+        name_hash = hashlib.md5(name.encode('utf-8')).hexdigest()
+        if base_path.endswith('/') or base_path.endswith('\\'):
+            save_path = base_path
+        else:
+            save_path = base_path + "/"
+        depth = 2  # will have depth of n dirs (MAX of 16 because length of md5 hash)
+        for i in range(1, depth+1):
+            end = i*2
+            start = end-2
+            save_path += name_hash[start:end] + "/"
+        return save_path, name_hash
+
     def create_path(self, path, is_dir=False):
         """
         Check if path exists, if not create it
