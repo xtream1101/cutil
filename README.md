@@ -26,3 +26,27 @@ class MyClass(CustomUtils):
         super().__init__()
 ```
 This way all of the functions that are in `custom_utils.py` can be accessed by using `self.func(arg)` inside your class. If you needed to access a function outside a class you can use `CustomUtils().func(arg)`
+
+To use the sql.py file here is an small example, This would be somewhere in `MyClass`
+```python
+def sql_setup(self):
+    db_file = "file.sqlite"
+    db_version = 1
+    self.sql = Sql(db_file, db_version)
+    is_same_version = self.sql.set_up_db()
+    if not is_same_version:
+        # Update database to work with current version
+        pass
+
+    # Get session
+    self._db_session = self.sql.get_session()
+```
+This will setup a table in an sqlite database called `settings` which has the fields `field` & `value` with the rows for the `db_version` that you passed and a `progress` which will start at `-1`
+
+You can even add your own tables like this by adding it to your file:
+```python
+class Data(Base):
+    __tablename__ = 'data'
+    id        = Column(Integer, primary_key=True)
+    time_utc  = Column(Integer, nullable=False)
+```
