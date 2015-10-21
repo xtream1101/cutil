@@ -38,6 +38,9 @@ class CustomUtils:
             print('Processing...', end='\r')
             self._prev_cstr = 'Processing...'
 
+    def log(self, message):
+        print(str(message) + '\n')
+
     ####
     # Time related functions
     ####
@@ -140,6 +143,8 @@ class CustomUtils:
     def download(self, url, file_path, header={}):
         self.create_path(file_path)
 
+        if url.startswith('//'):
+            url = "http:" + url
         try:
             with urllib.request.urlopen(
               urllib.request.Request(url, headers=header)) as response, \
@@ -151,10 +156,10 @@ class CustomUtils:
 
         except urllib.error.HTTPError as e:
             return_value = False
-            # self.log("Error [download]: " + str(e.code) + " " + url, level='error')
+            # self.log("Error [download]: " + str(e.code) + " " + url)
         except Exception as e:
             return_value = False
-            # self.log("Exception [download]: " + str(e) + " " + url, level='error')
+            # self.log("Exception [download]: " + str(e) + " " + url)
 
         return return_value
 
