@@ -1,5 +1,5 @@
 import sqlalchemy
-from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
+from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint, and_, or_
 from sqlalchemy import create_engine, update, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
