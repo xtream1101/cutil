@@ -141,6 +141,11 @@ class CustomUtils:
             json.dump(data, outfile, sort_keys=True, indent=4)
 
     def download(self, url, file_path, header={}):
+        """
+        :return: True/False
+        """
+        success = True
+
         self.create_path(file_path)
 
         if url.startswith('//'):
@@ -152,16 +157,17 @@ class CustomUtils:
                     data = response.read()
                     out_file.write(data)
 
-            return_value = file_path
-
         except urllib.error.HTTPError as e:
-            return_value = False
-            # self.log("Error [download]: " + str(e.code) + " " + url)
-        except Exception as e:
-            return_value = False
-            # self.log("Exception [download]: " + str(e) + " " + url)
+            success = False
+            # We do not need to show the user 404 errors
+            if e.code != 404:
+                self.log("Download Error: " + str(e))
 
-        return return_value
+        except Exception as e:
+            success = False
+            self.log("Download Error: " + str(e))
+
+        return success
 
     ####
     # BeautifulSoup Related functions
