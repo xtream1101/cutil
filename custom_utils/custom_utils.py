@@ -2,6 +2,7 @@ import os
 import time
 import json
 import urllib
+import random
 import hashlib
 import logging
 import requests
@@ -15,7 +16,8 @@ class CustomUtils:
 
     def __init__(self):
         self._prev_cstr = ''
-        self._proxies = {}
+        self._proxy_list = []
+        self._current_proxy = {}
 
     ####
     # Terminal/display related functions
@@ -169,14 +171,30 @@ class CustomUtils:
 
         return success
 
-    def set_proxy(self, proxies):
+    def set_proxies(self, proxy_list):
+        for proxy in proxy_list:
+            self._proxy_list.append({'http': proxy})
+
+        # Now start using one
+        self.rotate_proxy()
+
+    def get_current_proxy(self):
+        if 'http' in self._current_proxy:
+            return self._current_proxy['http']
+        return None
+
+    def rotate_proxy(self):
+        new_proxy = random.choice(self._proxy_list)
+
         # Used for get_html() (requests)
-        self._proxies = proxies
+        self._current_proxy = new_proxy
 
         # Used for download() (urllib)
-        proxy_support = urllib.request.ProxyHandler(self._proxies)
+        proxy_support = urllib.request.ProxyHandler(self._current_proxy)
         opener = urllib.request.build_opener(proxy_support)
         urllib.request.install_opener(opener)
+
+        return self.get_current_proxy()
 
     ####
     # BeautifulSoup Related functions
@@ -188,7 +206,7 @@ class CustomUtils:
         if not url.startswith('http'):
             url = "http://" + url
         try:
-            response = requests.get(url, headers=header, proxies=self._proxies)
+            response = requests.get(url, headers=header, proxies=self._current_proxy)
             if response.status_code == requests.codes.ok:
                 if is_json:
                     data = response.json()
