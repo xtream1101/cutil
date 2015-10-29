@@ -30,7 +30,7 @@ class MyClass(CustomUtils):
                    'http://host:port',
                    'http://host:port'
                    ]
-        self.set_proxy(proxies)
+        self.set_proxies(proxies)
 
         # Get current proxy
         print(self.get_current_proxy())
