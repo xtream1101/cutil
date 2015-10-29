@@ -26,10 +26,17 @@ class MyClass(CustomUtils):
         super().__init__()
 
         # If you need a proxy
-        proxies = {
-                   'http': 'http://host:port'
-                   }
+        proxies = ['http://host:port',
+                   'http://host:port',
+                   'http://host:port'
+                   ]
         self.set_proxy(proxies)
+
+        # Get current proxy
+        print(self.get_current_proxy())
+
+        # Switch proxy and return the new one (if you have more then one)
+        print(self.rotate_proxy())
 ```
 This way all of the functions that are in `custom_utils.py` can be accessed by using `self.func(arg)` inside your class. If you needed to access a function outside a class you can use `CustomUtils().func(arg)`
 
