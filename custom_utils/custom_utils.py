@@ -161,11 +161,11 @@ class CustomUtils:
             success = False
             # We do not need to show the user 404 errors
             if e.code != 404:
-                self.log("Download Error: " + str(e))
+                self.log("Download Error (" + url + "): " + str(e))
 
         except Exception as e:
             success = False
-            self.log("Download Error: " + str(e))
+            self.log("Download Error (" + url + "): " + str(e))
 
         return success
 
