@@ -140,7 +140,7 @@ class CustomUtils:
         with open(data['save_path'] + ".json", 'w') as outfile:
             json.dump(data, outfile, sort_keys=True, indent=4)
 
-    def download(self, url, file_path, header={}):
+    def download(self, url, file_path, header={}, proxies={}):
         """
         :return: True/False
         """
@@ -152,7 +152,7 @@ class CustomUtils:
             url = "http:" + url
         try:
             with urllib.request.urlopen(
-              urllib.request.Request(url, headers=header)) as response, \
+              urllib.request.Request(url, headers=header, proxies=proxies)) as response, \
                 open(file_path, 'wb') as out_file:
                     data = response.read()
                     out_file.write(data)
@@ -172,14 +172,14 @@ class CustomUtils:
     ####
     # BeautifulSoup Related functions
     ####
-    def get_site(self, url, header={}, is_json=False):
+    def get_site(self, url, header={}, proxies={}, is_json=False):
         """
         Try and return soup or json content, if not throw a RequestsError
         """
         if not url.startswith('http'):
             url = "http://" + url
         try:
-            response = requests.get(url, headers=header)
+            response = requests.get(url, headers=header, proxies=proxies)
             if response.status_code == requests.codes.ok:
                 if is_json:
                     data = response.json()
