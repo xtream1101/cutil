@@ -76,7 +76,7 @@ class CustomUtils:
 
     def rreplace(self, s, old, new, occurrence):
         """
-        Taken from: http://stackoverflow.com/questions/2556108/how-to-replace-the-last-occurence-of-an-expression-in-a-string
+        Taken from: http://stackoverflow.com/a/2556252
         """
         li = s.rsplit(old, occurrence)
         return new.join(li)
@@ -199,26 +199,27 @@ class CustomUtils:
     ####
     # BeautifulSoup Related functions
     ####
-    def get_site(self, url, header={}, is_json=False):
+    def get_site(self, url, header={}, is_json=False, return_error_page=False):
         """
         Try and return soup or json content, if not throw a RequestsError
         """
         if not url.startswith('http'):
             url = "http://" + url
         try:
-            response = requests.get(url, headers=header, proxies=self._current_proxy)
-            if response.status_code == requests.codes.ok:
+            self.response = requests.get(url, headers=header, proxies=self._current_proxy)
+            if self.response.status_code == requests.codes.ok:
                 if is_json:
-                    data = response.json()
+                    data = self.response.json()
                 else:
-                    data = BeautifulSoup(response.text, "html5lib")
+                    data = BeautifulSoup(self.response.text, "html5lib")
 
-                return data 
-                
-            response.raise_for_status()
+                return data
+
+            self.response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             # self.log("HTTPError [get_site]: " + str(e.response.status_code) + " " + url, level='error')
             raise RequestsError(str(e))
+
         except requests.exceptions.ConnectionError as e:
             # self.log("ConnectionError [get_site]: " + str(e) + " " + url, level='error')
             raise RequestsError(str(e))
