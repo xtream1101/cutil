@@ -59,6 +59,13 @@ class CustomUtils:
         default_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
         return default_header
 
+    def set_url_header(self, url_header):
+        if url_header is None:
+            # Use default
+            return self.get_default_header()
+        else:
+            return url_header
+
     def sanitize(self, string):
         """
         Catch and replace invalid path chars
