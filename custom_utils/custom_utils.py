@@ -149,11 +149,16 @@ class CustomUtils:
         with open(data['save_path'] + ".json", 'w') as outfile:
             json.dump(data, outfile, sort_keys=True, indent=4)
 
-    def download(self, url, file_path, header={}):
+    def download(self, url, file_path, header={}, redownload=False):
         """
         :return: True/False
         """
         success = True
+
+        if redownload is False:
+            # See if we already have the file
+            if os.path.isfile(file_path):
+                return True
 
         self.create_path(file_path)
 
