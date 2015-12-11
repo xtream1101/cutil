@@ -211,7 +211,7 @@ class CustomUtils:
     ####
     # BeautifulSoup Related functions
     ####
-    def get_site(self, url, header={}, is_json=False, page_format='html', return_error_page=False):
+    def get_site(self, url, header={}, page_format='html', return_error_page=False):
         """
         Try and return soup or json content, if not throw a RequestsError
         """
@@ -220,12 +220,11 @@ class CustomUtils:
         try:
             self.response = requests.get(url, headers=header, proxies=self._current_proxy)
             if self.response.status_code == requests.codes.ok:
-                # This is a temp fix until I update the other scripts
+                # Return the correct format
                 if page_format == 'html':
-                    if is_json:
-                        data = self.response.json()
-                    else:
-                        data = BeautifulSoup(self.response.text, "html5lib")
+                    data = BeautifulSoup(self.response.text, "html5lib")
+                elif page_format == 'json':
+                    data = self.response.json()
                 elif page_format == 'xml':
                     data = BeautifulSoup(self.response.text, "lxml")
                 elif page_format == 'raw':
