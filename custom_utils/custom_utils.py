@@ -19,8 +19,7 @@ class CustomUtils:
         self._prev_cstr = ''
         self.bprint_disable = False
 
-
-         self._proxy_list = []
+        self._proxy_list = []
         self._current_proxy = None
         self._apikey_list = []
         self._current_apikey = None
@@ -335,16 +334,17 @@ class CustomUtils:
             rdata = BeautifulSoup(raw_content, "lxml")
         return rdata
 
-    def get_site(self, url, cookies={}, page_format='html', return_on_error=[], num_tries=0,
-                 header={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'}):
+    def get_site(self, url, cookies={}, page_format='html', return_on_error=[], num_tries=0, header={}):
         """
         Try and return soup or json content, if not throw a RequestsError
         """
+        full_header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'}
+        full_header.update(header)
         num_tries += 1
         if not url.startswith('http'):
             url = "http://" + url
         try:
-            self.response = requests.get(url, headers=header, cookies=cookies, proxies=self._current_proxy)
+            self.response = requests.get(url, headers=full_header, cookies=cookies, proxies=self._current_proxy)
             if self.response.status_code == requests.codes.ok:
                 # Return the correct format
                 if page_format == 'html':
