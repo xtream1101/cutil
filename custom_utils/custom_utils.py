@@ -10,7 +10,12 @@ import traceback
 from bs4 import BeautifulSoup
 from datetime import datetime
 from custom_utils.exceptions import *
-from custom_utils.log import DataLoggingIO
+from custom_utils.log import CustomLogger
+
+
+# Use our custom logging class, will use any settings already set
+logging.setLoggerClass(CustomLogger)
+logger = logging.getLogger('custom_logger')
 
 
 class CustomUtils:
@@ -32,12 +37,12 @@ class CustomUtils:
         # If we have proxies then add them
         if len(proxies) > 0:
             self.set_proxies(proxies)
-            self.log("Using Proxy: " + self.get_current_proxy())
+            logger.debug("Using Proxy: " + self.get_current_proxy())
 
         # If we have apikeys then add them
         if len(apikeys) > 0:
             self.set_apikeys(apikeys)
-            self.log("Using API Key: " + self.get_current_apikey())
+            logger.debug("Using API Key: " + self.get_current_apikey())
 
     ####
     # Terminal/display related functions
@@ -86,17 +91,13 @@ class CustomUtils:
 
         os.system('cls' if os.name == 'nt' else 'clear')
         for item in self.bprint_order:
-            print(self.bprint_messages[item][0] + ": " +
-                  str(self.bprint_messages[item][1]))
+            print(self.bprint_messages[item][0] + ": " + str(self.bprint_messages[item][1]))
 
         if self.bprint_disable is not True:
             # Update terminal every n seconds
             t_reload = threading.Timer(.5, self._bprint_display)
             t_reload.setDaemon(True)
             t_reload.start()
-
-    def log(self, message):
-        print(str(message) + '\n')
 
     ####
     # Time related functions
@@ -305,21 +306,20 @@ class CustomUtils:
         if url.startswith('//'):
             url = "http:" + url
         try:
-            with urllib.request.urlopen(
-              urllib.request.Request(url, headers=header)) as response, \
-                open(file_path, 'wb') as out_file:
-                    data = response.read()
-                    out_file.write(data)
+            with urllib.request.urlopen(urllib.request.Request(url, headers=header)) as response, \
+            open(file_path, 'wb') as out_file:
+                data = response.read()
+                out_file.write(data)
 
         except urllib.error.HTTPError as e:
             success = False
             # We do not need to show the user 404 errors
             if e.code != 404:
-                self.log("Download Error (" + url + "): " + str(e))
+                logger.warning("Download Http Error (" + url + "): " + str(traceback.format_exc()))
 
         except Exception as e:
             success = False
-            self.log("Download Error (" + url + "): " + str(e))
+            logger.error("Download Error (" + url + "): " + str(traceback.format_exc()))
 
         return success
 
@@ -341,6 +341,8 @@ class CustomUtils:
         full_header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'}
         full_header.update(header)
         num_tries += 1
+        logger.debug("[get_site]: url=" + str(url) + ", cookies=" + str(cookies) + ", page_format=" + str(page_format) + ", return_on_error=" + str(return_on_error) + ", num_tries=" + str(num_tries) + ", full_header=" + str(full_header))
+
         if not url.startswith('http'):
             url = "http://" + url
         try:
@@ -369,42 +371,45 @@ class CustomUtils:
 
             if response_code == '401' and num_tries < 4:
                 # Fail after 3 tries
-                self.log("HTTP 401 error, try #" + str(num_tries) + " on url: " + url, level='info')
+                logger.info("HTTP 401 error, try #" + str(num_tries) + " on url: " + url)
                 # self.log("Switching API Keys...")
                 # self.rotate_apikey()
                 # return self.get_site(url, header=header, page_format=page_format,
                 #                      cookies=cookies, num_tries=num_tries)
             elif response_code == '403' and num_tries < 4:
                 # Fail after 3 tries
-                self.log("HTTP 403 error, try #" + str(num_tries) + " on url: " + url, level='info')
+                logger.info("HTTP 403 error, try #" + str(num_tries) + " on url: " + url)
                 # self.log("Switching proxies...")
                 # self.rotate_proxy()
                 # return self.get_site(url, header=header, page_format=page_format,
                 #                      cookies=cookies, num_tries=num_tries)
             elif response_code == '504' and num_tries < 4:
                 # Wait a second and try again, fail after 3 tries
-                self.log("HTTP 504 error, try #" + str(num_tries) + " on url: " + url, level='info')
+                logger.info("HTTP 504 error, try #" + str(num_tries) + " on url: " + url)
                 time.sleep(1)
                 return self.get_site(url, header=header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             elif response_code == '520' and num_tries < 4:
                 # Wait a second and try again, fail after 3 tries
-                self.log("HTTP 520 error, try #" + str(num_tries) + " on url: " + url, level='info')
+                logger.info("HTTP 520 error, try #" + str(num_tries) + " on url: " + url)
                 time.sleep(1)
                 return self.get_site(url, header=header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             else:
-                self.log("HTTPError [get_site]: " + response_code + " " + url, level='error')
+                logger.error("HTTPError [get_site]: " + response_code + " " + url)
 
         except requests.exceptions.ConnectionError as e:
             if num_tries < 4:
-                self.log("ConnectionError [get_site] try #" + str(num_tries) + " Error" + str(e) + " " + url, level='warning')
+                logger.warning("ConnectionError [get_site] try #" + str(num_tries) + " Error" + str(e) + " " + url)
                 time.sleep(5)
                 return self.get_site(url, header=header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             else:
-                self.log("ConnectionError [get_site]: " + str(e) + " " + url, level='error')
+                logger.error("ConnectionError [get_site]: " + str(e) + " " + url)
         except requests.exceptions.TooManyRedirects as e:
-            self.log("TooManyRedirects [get_site]: " + str(e) + " " + url, level='error')
+            logger.erorr("TooManyRedirects [get_site]: " + str(e) + " " + url)
         except Exception as e:
-            self.log("Exception [get_site]: " + str(e) + " " + url + "\n" + str(traceback.format_exc()), level='critical')
+            logger.critical("Exception [get_site]: " + str(e) + " " + url + "\n" + str(traceback.format_exc()))
+
+        # If we were not able to get valid data
+        return None

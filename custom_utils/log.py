@@ -28,13 +28,13 @@ class CustomLogger(logging.Logger):
         if self.data_io is not None and self.extra['datalogging_io'] is True:
             self.data_io.message(msg, log_lvl[level])
 
-        print(level, msg, args, self.extra)
+        print(log_lvl[level] + ": " + msg)
 
     #########################
     # DataLogging.io Service
     #########################
     def datalogging_io_config(self, dl_config):
-        self.data_io = DataLoggingIO(dl_config['domain'], dl_config['apikey'], dl_config['group_key'])
+        self.data_io = DataLoggingIO(dl_config['host'], dl_config['apikey'], dl_config['group_key'])
 
     def datalogging_io_start(self):
         if self.data_io is not None:
@@ -48,7 +48,12 @@ class CustomLogger(logging.Logger):
         if self.data_io is not None:
             self.data_io.scrape_count(count)
 
-   
+
+# Use our custom logging class, will use any settings already set
+logging.setLoggerClass(CustomLogger)
+logger = logging.getLogger('custom_logger')
+
+
 class DataLoggingIO:
     """
     dev.datalogging.io
