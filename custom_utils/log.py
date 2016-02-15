@@ -1,3 +1,4 @@
+import sys
 import logging
 import requests
 
@@ -9,13 +10,8 @@ class CustomLogger(logging.Logger):
         self.data_io = None
         self.error_table = None
 
-    def _log(self, level, msg, args, extra={}):
-        super(CustomLogger, self)._log(level, msg, args, extra)
-
-        self.extra = {'datalogging_io': True,
-                      }
-        self.extra.update(extra)
-
+    def _log(self, level, msg, *args, **kwargs):
+        super(CustomLogger, self)._log(level, msg, *args, **kwargs)
         # Map level value to level text
         log_lvl = {10: 'debug',
                    20: 'info',
@@ -24,11 +20,27 @@ class CustomLogger(logging.Logger):
                    50: 'critical',
                    }
 
+        extra = {'datalogging_io': True,
+                 }
+        if 'extra' in kwargs:
+            extra.update(kwargs['extra'])
+
+        # Handle traceback if needed
+        traceback_value = None
+        if 'exc_info' in kwargs:
+            exc_type, exc_obj, tb = sys.exc_info()
+            f = tb.tb_frame
+            lineno = tb.tb_lineno
+            filename = f.f_code.co_filename
+            traceback_value = exc_type.__name__ + ": " + str(exc_obj) + " on line " + str(lineno) + " in " + filename
+
+        if traceback_value is not None:
+            msg += "\n" + traceback_value
+
         # If dataloggingIO is setup
-        if self.data_io is not None and self.extra['datalogging_io'] is True:
+        if self.data_io is not None and extra['datalogging_io'] is True:
             self.data_io.message(msg, log_lvl[level])
 
-        print(log_lvl[level] + ": " + msg)
 
     #########################
     # DataLogging.io Service

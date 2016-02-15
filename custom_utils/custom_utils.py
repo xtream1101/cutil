@@ -14,7 +14,6 @@ from custom_utils.log import CustomLogger
 
 
 # Use our custom logging class, will use any settings already set
-logging.setLoggerClass(CustomLogger)
 logger = logging.getLogger('custom_logger')
 
 
