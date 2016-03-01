@@ -153,8 +153,8 @@ class CustomUtils:
         # Fill the Queue with the data to process
         for item in data:
             item2 = [item]
-            if len(other_args) > 0:
-                item2.extend(other_args)
+            if len(args) > 0:
+                item2.extend(args)
             q.put(item2)
 
         # Start processing the data
