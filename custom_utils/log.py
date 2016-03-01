@@ -1,6 +1,8 @@
 import sys
 import logging
 import requests
+import traceback
+import threading
 
 
 class CustomLogger(logging.Logger):
@@ -11,7 +13,6 @@ class CustomLogger(logging.Logger):
         self.error_table = None
 
     def _log(self, level, msg, *args, **kwargs):
-        super(CustomLogger, self)._log(level, msg, *args, **kwargs)
         # Map level value to level text
         log_lvl = {10: 'debug',
                    20: 'info',
@@ -25,22 +26,29 @@ class CustomLogger(logging.Logger):
         if 'extra' in kwargs:
             extra.update(kwargs['extra'])
 
-        # Handle traceback if needed
-        traceback_value = None
-        if 'exc_info' in kwargs:
-            exc_type, exc_obj, tb = sys.exc_info()
-            f = tb.tb_frame
-            lineno = tb.tb_lineno
-            filename = f.f_code.co_filename
-            traceback_value = exc_type.__name__ + ": " + str(exc_obj) + " on line " + str(lineno) + " in " + filename
+        thread_id = threading.current_thread().ident
+        full_msg = "Thread: {}\n{}".format(thread_id, msg)
+        # Pass the message on to the native python logegr
+        super(CustomLogger, self)._log(level, full_msg, *args, **kwargs)
 
-        if traceback_value is not None:
-            msg += "\n" + traceback_value
+        # Handle traceback if needed
+        tb_values = None
+        if 'exc_info' in kwargs:
+            tb_values = {}
+            exc_type, tb_values['exc_obj'], tb = sys.exc_info()
+            f = tb.tb_frame
+            tb_values['lineno'] = tb.tb_lineno
+            tb_values['filename'] = f.f_code.co_filename
+            tb_values['full_traceback'] = traceback.format_exc()
+            tb_values['name'] = exc_type.__name__
+
+        # Full message contains the exception info if there is any
+        if tb_values is not None:
+            full_msg += "\n" + tb_values['full_traceback']
 
         # If dataloggingIO is setup
         if self.data_io is not None and extra['datalogging_io'] is True:
             self.data_io.message(msg, log_lvl[level])
-
 
     #########################
     # DataLogging.io Service

@@ -1,17 +1,21 @@
 import os
 import time
 import json
+import uuid
+import queue
 import urllib
 import random
 import hashlib
 import logging
 import requests
+import threading
 import traceback
 from bs4 import BeautifulSoup
-from datetime import datetime
+# from datetime import datetime
+import datetime
 from custom_utils.exceptions import *
 from custom_utils.log import CustomLogger
-
+from pprint import pprint
 
 # Use our custom logging class, will use any settings already set
 logger = logging.getLogger('custom_logger')
@@ -19,29 +23,20 @@ logger = logging.getLogger('custom_logger')
 
 class CustomUtils:
 
-    def __init__(self, proxies=[], apikeys=[]):
+    def __init__(self):
         self._prev_cstr = ''
-        self.bprint_disable = False
+        self._bprint_disable = False
 
         self._proxy_list = []
         self._current_proxy = None
+        self._custom_proxy = False
         self._apikey_list = []
         self._current_apikey = None
 
         # Block print display messages and values
-        self.bprint_messages = None
+        self._bprint_messages = None
         # Block print display order (only items listed here will be displayed)
-        self.bprint_order = None
-
-        # If we have proxies then add them
-        if len(proxies) > 0:
-            self.set_proxies(proxies)
-            logger.debug("Using Proxy: " + self.get_current_proxy())
-
-        # If we have apikeys then add them
-        if len(apikeys) > 0:
-            self.set_apikeys(apikeys)
-            logger.debug("Using API Key: " + self.get_current_apikey())
+        self._bprint_order = None
 
     ####
     # Terminal/display related functions
@@ -113,9 +108,72 @@ class CustomUtils:
         """
         return datetime.datetime.now()
 
+    def datetime_to_str(self, timestamp):
+        # The script is set to use UTC, so all times are in UTC
+        return timestamp.isoformat() + "+0000"
+
+    def str_to_date(self, timestamp, formats=["%Y-%m-%dT%H:%M:%S.%f%z", "%Y-%m-%dT%H:%M:%S%z"]):
+        rdata = None
+        if timestamp is None:
+            return None
+
+        for time_format in formats:
+            try:
+                rdata = datetime.datetime.strptime(timestamp, time_format)
+            except ValueError:
+                rdata = None
+            else:
+                # If we did not raise an exception
+                break
+
+        return rdata
+
+    ###
+    # Threading
+    ###
+    def threads(self, num_threads, data, cb_run, *args):
+        q = queue.Queue()
+
+        def _thread_run():
+            while True:
+                item = q.get()
+                try:
+                    cb_run(*item)
+                except Exception:
+                    logger.exception({'tag': "CustomUtils()._thread_run",
+                                      'annotation': "Exception in CustomUtils()._thread_run in callback {} with item:\n{}".format(cb_run.__name__, item),
+                                      })
+                q.task_done()
+
+        for i in range(num_threads):
+            t = threading.Thread(target=_thread_run)
+            t.daemon = True
+            t.start()
+
+        # Fill the Queue with the data to process
+        for item in data:
+            item2 = [item]
+            if len(other_args) > 0:
+                item2.extend(other_args)
+            q.put(item2)
+
+        # Start processing the data
+        q.join()
+
     ####
     # Other functions
     ####
+    def get_internal_ip(self):
+        return socket.gethostbyname(socket.gethostname())
+
+    def get_external_ip(self):
+        json = self.get_site('https://api.ipify.org/?format=json', page_format='json')
+        ip = self.get_value('ip', json)
+        return ip
+
+    def create_uid(self):
+        return uuid.uuid4().hex
+
     def get_default_header(self):
         default_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
         return default_header
@@ -135,6 +193,10 @@ class CustomUtils:
             return self.get_default_header()
         else:
             return url_header
+
+    def make_url_safe(self, string):
+        # Convert special chars to % chars
+        return urllib.parse.quote_plus(string)
 
     def sanitize(self, string):
         """
@@ -158,12 +220,27 @@ class CustomUtils:
         li = s.rsplit(old, occurrence)
         return new.join(li)
 
+    def get_script_name(self, ext=True):
+        name = os.path.basename(sys.argv[0])
+        if ext is False:
+            name = name.split('.')[0]
+        return name
+
     ###
     # Proxies
     ###
     # TODO: Combine the proxy and apikey functions into one
     #         Do not combine the gets
     # TODO: Notify client when all proxies or apikeys have been used/tried
+    def custom_proxy_setup(self, cb, iso_country_code=None):
+        """
+        Pass in custom function to change proxy
+        """
+        self._custom_proxy = True
+        self._iso_country_code = iso_country_code
+        self.custom_proxy_cb = cb
+        self.rotate_proxy()
+
     def set_proxies(self, proxy_list):
         for proxy in proxy_list:
             self._proxy_list.append(proxy)
@@ -174,15 +251,14 @@ class CustomUtils:
         return self._current_proxy
 
     def rotate_proxy(self):
-        # Used for get_site() (requests)
-        self._current_proxy = self.get_next_proxy()
+        # TODO: Confirm that the proxy took effect
+        if self._custom_proxy is True:
+            self._current_proxy = self.custom_proxy_cb(self._iso_country_code)
+        else:
+            self._current_proxy = self.get_next_proxy()
 
-        # Used for download() (urllib)
-        proxy_support = urllib.request.ProxyHandler(self._current_proxy)
-        opener = urllib.request.build_opener(proxy_support)
-        urllib.request.install_opener(opener)
-
-        return self.get_current_proxy()
+        logger.info("Use proxy {}".format(self._current_proxy))
+        return self._current_proxy
 
     def get_next_proxy(self):
         if self.get_current_proxy() is None:
@@ -325,6 +401,48 @@ class CustomUtils:
     ####
     # BeautifulSoup Related functions
     ####
+    def get_image_dimension(self, url):
+        # TODO: Check if these have already been imported
+        #       That way we do not re import on each use, only the first
+        from PIL import Image  # pip install pillow
+        from io import BytesIO
+        w_h = (None, None)
+        try:
+            if url.startswith('//'):
+                url = "http:" + url
+            data = requests.get(url).content
+            im = Image.open(BytesIO(data))
+
+            w_h = im.size
+        except Exception:
+            logger.warning("Error getting image size {}".format(url), exc_info=True)
+
+        return w_h
+
+    def screenshot(self, url, out_file, driver_passed=None, background_color=None):
+        logger.info("Taking screenshot of url: {}".format(url))
+        if driver_passed is None:
+            from selenium import webdriver
+            driver = webdriver.PhantomJS()
+            driver.set_window_size(1024, 768)
+            background_color = 'white'
+        else:
+            driver = driver_passed
+
+        driver.get(url)
+
+        if background_color is not None:
+            # PhantomJS by default has transparent backgrounds
+            driver.execute_script('document.body.style.background = "{}"'
+                                  .format(background_color))
+        out_file = self.create_path(out_file, is_dir=False)
+        driver.get_screenshot_as_file(out_file)
+        # Had to create a driver just for this, so its no longer needed
+        if driver_passed is None:
+            driver.quit()
+
+        return out_file
+
     def get_soup(self, raw_content, input_type='html'):
         rdata = None
         if input_type == 'html':
@@ -339,13 +457,25 @@ class CustomUtils:
         """
         full_header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'}
         full_header.update(header)
+
+        # Timeout in seconds
+        timeout = 30
         num_tries += 1
-        logger.debug("[get_site]: url=" + str(url) + ", cookies=" + str(cookies) + ", page_format=" + str(page_format) + ", return_on_error=" + str(return_on_error) + ", num_tries=" + str(num_tries) + ", full_header=" + str(full_header))
+        logger.debug("""[get_site]: url={}, cookies={}, page_format={},
+                     return_on_error={}, num_tries={}, full_header={}"""
+                     .format(url,
+                             cookies,
+                             page_format,
+                             return_on_error,
+                             num_tries,
+                             full_header
+                             ))
 
         if not url.startswith('http'):
             url = "http://" + url
         try:
-            self.response = requests.get(url, headers=full_header, cookies=cookies, proxies=self._current_proxy)
+            self.response = requests.get(url, headers=full_header, cookies=cookies,
+                                         proxies=self._current_proxy, timeout=timeout)
             if self.response.status_code == requests.codes.ok:
                 # Return the correct format
                 if page_format == 'html':
@@ -371,44 +501,59 @@ class CustomUtils:
             if response_code == '401' and num_tries < 4:
                 # Fail after 3 tries
                 logger.info("HTTP 401 error, try #" + str(num_tries) + " on url: " + url)
-                # self.log("Switching API Keys...")
-                # self.rotate_apikey()
-                # return self.get_site(url, header=header, page_format=page_format,
-                #                      cookies=cookies, num_tries=num_tries)
+                new_apikey = self.rotate_apikey()
+                logger.warning("Switched apikeys, now using {}".format(new_apikey))
+                return self.get_site(url, header=full_header, page_format=page_format,
+                                     cookies=cookies, num_tries=num_tries)
             elif response_code == '403' and num_tries < 4:
                 # Fail after 3 tries
                 logger.info("HTTP 403 error, try #" + str(num_tries) + " on url: " + url)
-                # self.log("Switching proxies...")
-                # self.rotate_proxy()
-                # return self.get_site(url, header=header, page_format=page_format,
-                #                      cookies=cookies, num_tries=num_tries)
+                new_proxy = self.rotate_proxy()
+                logger.warning("Switched proxies, now using {}".format(new_proxy))
+                return self.get_site(url, header=full_header, page_format=page_format,
+                                     cookies=cookies, num_tries=num_tries)
+            elif response_code == '503' and num_tries < 4:
+                # Wait a second and try again, fail after 3 tries
+                logger.info("HTTP 503 error, try #" + str(num_tries) + " on url: " + url)
+                time.sleep(2)
+                return self.get_site(url, header=full_header, page_format=page_format,
+                                     cookies=cookies, num_tries=num_tries)
             elif response_code == '504' and num_tries < 4:
                 # Wait a second and try again, fail after 3 tries
                 logger.info("HTTP 504 error, try #" + str(num_tries) + " on url: " + url)
                 time.sleep(1)
-                return self.get_site(url, header=header, page_format=page_format,
+                return self.get_site(url, header=full_header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             elif response_code == '520' and num_tries < 4:
                 # Wait a second and try again, fail after 3 tries
                 logger.info("HTTP 520 error, try #" + str(num_tries) + " on url: " + url)
                 time.sleep(1)
-                return self.get_site(url, header=header, page_format=page_format,
+                return self.get_site(url, header=full_header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             else:
-                logger.error("HTTPError [get_site]: " + response_code + " " + url)
+                logger.warning("HTTPError [get_site]: " + response_code + " " + url)
 
         except requests.exceptions.ConnectionError as e:
             if num_tries < 4:
-                logger.warning("ConnectionError [get_site] try #" + str(num_tries) + " Error" + str(e) + " " + url)
+                logger.info("ConnectionError [get_site] try #" + str(num_tries) + " Error" + str(e) + " " + url)
                 time.sleep(5)
-                return self.get_site(url, header=header, page_format=page_format,
+                return self.get_site(url, header=full_header, page_format=page_format,
                                      cookies=cookies, num_tries=num_tries)
             else:
-                logger.error("ConnectionError [get_site]: " + str(e) + " " + url)
-        except requests.exceptions.TooManyRedirects as e:
-            logger.erorr("TooManyRedirects [get_site]: " + str(e) + " " + url)
+                logger.warning("ConnectionError [get_site]: " + url)
+
+        except requests.exceptions.Timeout as e:
+            if num_tries < 4:
+                logger.info("Request timeout [get_site] try #" + str(num_tries) + " Error" + str(e) + " " + url)
+                time.sleep(5)
+                return self.get_site(url, header=full_header, page_format=page_format,
+                                     cookies=cookies, num_tries=num_tries)
+            else:
+                logger.warning("Request timeout [get_site]: " + url)
+        except requests.exceptions.TooManyRedirects:
+            logger.exception("TooManyRedirects [get_site]: " + url)
         except Exception as e:
-            logger.critical("Exception [get_site]: " + str(e) + " " + url + "\n" + str(traceback.format_exc()))
+            logger.exception("Exception [get_site]")
 
         # If we were not able to get valid data
         return None
