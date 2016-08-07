@@ -25,7 +25,7 @@ sudo pip install pillow
 
 ## Usage
 
-### **import l2_custom_utils as cutil**
+### **import custom_utils as cutil**
 
 #### fn: **cprint**
 This will keep printing on the same line by clearing the line and printing the new message. If you would like to enter down use a `\n` at the end of your message
@@ -155,18 +155,6 @@ my_val = cutil.get_value('valC', test_dict)  # Returns None
 my_val = cutil.get_value('valA', test_dict, default_val=87)  # Returns 5
 my_val = cutil.get_value('valC', test_dict, default_val=87)  # Returns 87
 ```
-
-----------
-
-#### fn: **parse_price**
-Get the price low and high form the string passed in
-Params:
-
-- **price** - _Type: String_ - String that contains a price, or a low-high price
-
-Returns a dict `{'low': <float | None>, 'high': <float | None>`
-Ex:
-https://gitlab.l2inc.com/snippets/2
 
 ----------
 
