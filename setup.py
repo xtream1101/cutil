@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='custom_utils',
     packages=['custom_utils'],
-    version='0.6.0',
+    version='1.0.0',
     description='Custom Utility and helper functions',
     author='Eddy Hintze',
     author_email="eddy.hintze@gmail.com",
@@ -18,5 +18,5 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
-        ],
+    ],
 )
