@@ -1,6 +1,6 @@
-from l2_custom_utils.database import Database
-from l2_custom_utils.custom_terminal import CustomTerminal
-from l2_custom_utils.repeating_timer import RepeatingTimer
+from custom_utils.database import Database
+from custom_utils.custom_terminal import CustomTerminal
+from custom_utils.repeating_timer import RepeatingTimer
 
 import os
 import sys
@@ -170,8 +170,8 @@ def get_script_name(ext=True):
 ####
 # File/filesystem related function
 ####
-def get_file_ext(url):
-    file_name, file_extension = os.path.splitext(url)
+def get_file_ext(file):
+    file_name, file_extension = os.path.splitext(file)
     return file_extension
 
 
