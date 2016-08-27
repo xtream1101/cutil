@@ -21,6 +21,7 @@ setup(
     ],
     install_requires=[
         'hashids',
+        'psycopg2',
         'requests',
     ],
 )
