@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='custom_utils',
     packages=['custom_utils'],
-    version='1.0.1',
+    version='1.0.2',
     description='Custom Utility and helper functions',
     author='Eddy Hintze',
     author_email="eddy.hintze@gmail.com",
