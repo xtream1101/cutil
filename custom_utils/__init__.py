@@ -1,5 +1,4 @@
 from custom_utils.database import Database
-from custom_utils.exceptions import RequestsError
 from custom_utils.custom_terminal import CustomTerminal
 from custom_utils.repeating_timer import RepeatingTimer
 
