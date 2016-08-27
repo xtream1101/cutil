@@ -1,8 +1,10 @@
 from custom_utils.database import Database
+from custom_utils.exceptions import RequestsError
 from custom_utils.custom_terminal import CustomTerminal
 from custom_utils.repeating_timer import RepeatingTimer
 
 import os
+import re
 import sys
 import uuid
 import time
@@ -100,11 +102,8 @@ def threads(num_threads, data, callback, *args, **kwargs):
 ####
 # Other functions
 ####
-def create_uid():
-    # Named uid and not uuid because this function does not have to use uuid's
-    uid = uuid.uuid4().hex
-    logger.debug("Created new uid: {}".format(uid))
-    return uid
+def get_internal_ip():
+    return socket.gethostbyname(socket.gethostname())
 
 
 def generate_key(value=None, salt=None, size=8):
@@ -122,13 +121,26 @@ def generate_key(value=None, salt=None, size=8):
     return hashids.encode(value)
 
 
-def get_internal_ip():
-    return socket.gethostbyname(socket.gethostname())
+def create_uid():
+    # Named uid and not uuid because this function does not have to use uuid's
+    uid = uuid.uuid4().hex
+    logger.debug("Created new uid: {}".format(uid))
+    return uid
 
 
 def get_default_header():
     default_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
     return default_header
+
+
+def get_value(key, object, default_val=None):
+    """
+    Pass in object with a key to get its value, if it can not, it will return `default_val`
+    """
+    try:
+        return object[key]
+    except KeyError:
+        return default_val
 
 
 def make_url_safe(string):
@@ -170,8 +182,8 @@ def get_script_name(ext=True):
 ####
 # File/filesystem related function
 ####
-def get_file_ext(file):
-    file_name, file_extension = os.path.splitext(file)
+def get_file_ext(url):
+    file_name, file_extension = os.path.splitext(url)
     return file_extension
 
 
@@ -233,6 +245,32 @@ def save_props(data):
     create_path(data['save_path'])
     with open(data['save_path'] + ".json", 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4)
+
+
+# Lets only do this once
+price_pattern = re.compile('([\d,.]+)(\D*([\d,.]+))?')
+
+
+def parse_price(price):
+    price_raw = re.search(price_pattern, price)
+    price = {'low': price_raw.group(1),
+             'high': price_raw.group(3)
+             }
+
+    for key, value in price.items():
+        if value is not None:
+            new_value = value.replace(',', '').replace('.', '')
+            try:
+                # Check if price has cents
+                if value[-3] in [',', '.']:
+                    # Add . for cents back
+                    new_value = new_value[:-2] + '.' + new_value[-2:]
+            except IndexError:
+                # Price is 99 or less with no cents
+                pass
+            price[key] = float(new_value)
+
+    return price
 
 
 def get_image_dimension(url):
