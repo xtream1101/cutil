@@ -1,27 +1,25 @@
-from setuptools import setup
+from distutils.core import setup
 
 
 setup(
-    name='custom_utils',
-    packages=['custom_utils'],
-    version='1.0.2',
-    description='Custom Utility and helper functions',
+    name='cutil',
+    packages=['cutil'],
+    version='1.1.0',
+    description='A collection of useful functions',
     author='Eddy Hintze',
     author_email="eddy.hintze@gmail.com",
-    url="https://github.com/xtream1101/custom-utils",
+    url="https://github.com/xtream1101/cutil",
+    license='MIT',
     classifiers=[
-        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "Environment :: Other Environment",
-        "Intended Audience :: Developers",
-        "License :: MIT",
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=[
-        'hashids',
-        'psycopg2',
-        'requests',
-    ],
+    install_requires=['hashids',
+                      'hashlib',
+                      'pytz',
+                      ]
 )

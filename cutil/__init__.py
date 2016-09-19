@@ -1,6 +1,6 @@
-from custom_utils.database import Database
-from custom_utils.custom_terminal import CustomTerminal
-from custom_utils.repeating_timer import RepeatingTimer
+from cutil.database import Database
+from cutil.custom_terminal import CustomTerminal
+from cutil.repeating_timer import RepeatingTimer
 
 import os
 import re
@@ -16,7 +16,6 @@ import urllib
 import hashlib
 import logging
 import datetime
-import requests
 import threading
 from hashids import Hashids
 
@@ -273,6 +272,7 @@ def parse_price(price):
 
 
 def get_image_dimension(url):
+    import requests
     from PIL import Image  # pip install pillow
     from io import BytesIO
     size = {'width': None,

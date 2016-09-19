@@ -1,4 +1,4 @@
-# Custom Utilities
+# Custom Utilities (cutil)
 
 Developed using Python 3.5 (use at least 3.4.2+)
 
@@ -20,12 +20,11 @@ sudo pip install pillow
 - [Selenium](https://pypi.python.org/pypi/selenium)
 
 ## Install
-- Install the needed dependencies
-- Download/clone the repo and run `python3 setup.py install`
+- `$ pip3 install cutil`
 
 ## Usage
 
-### **import custom_utils as cutil**
+### **import cutil**
 
 #### fn: **cprint**
 This will keep printing on the same line by clearing the line and printing the new message. If you would like to enter down use a `\n` at the end of your message
