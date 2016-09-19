@@ -1,7 +1,6 @@
 import sys
 import logging
 from contextlib import contextmanager
-from psycopg2.pool import ThreadedConnectionPool
 
 logger = logging.getLogger(__name__)
 
@@ -9,6 +8,8 @@ logger = logging.getLogger(__name__)
 class Database:
 
     def __init__(self, db_config, table_raw=None, max_connections=10):
+        from psycopg2.pool import ThreadedConnectionPool
+
         self.table_raw = table_raw
         try:
             self.pool = ThreadedConnectionPool(minconn=1,
