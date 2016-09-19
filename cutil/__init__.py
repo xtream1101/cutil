@@ -1,6 +1,7 @@
-from cutil.database import Database
-from cutil.custom_terminal import CustomTerminal
-from cutil.repeating_timer import RepeatingTimer
+from cutil.database import Database  # noqa: F401
+from l2_custom_utils.config import Config  # noqa: F401
+from cutil.custom_terminal import CustomTerminal  # noqa: F401
+from cutil.repeating_timer import RepeatingTimer  # noqa: F401
 
 import os
 import re
