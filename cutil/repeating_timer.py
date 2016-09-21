@@ -18,7 +18,7 @@ class RepeatingTimer():
         self.try_count += 1
         self.func(*self.args, **self.kwargs)
 
-        if self.repeat is True and self.max_tries is not None and self.try_count < self.max_tries:
+        if self.repeat is True and (self.max_tries is None or self.try_count < self.max_tries):
             self.start()
         else:
             self.cancel()
