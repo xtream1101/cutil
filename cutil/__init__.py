@@ -19,6 +19,7 @@ import logging
 import datetime
 import threading
 from hashids import Hashids
+from functools import wraps
 
 
 logger = logging.getLogger(__name__)
@@ -240,9 +241,12 @@ def create_path(path, is_dir=False):
     return path
 
 
-def save_props(data):
-    create_path(data['save_path'])
-    with open(data['save_path'] + ".json", 'w') as outfile:
+def dump_json(file_, data):
+    create_path(file_)
+    if not file_.endswith('.json'):
+        file_ += '.json'
+
+    with open(file_, 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4)
 
 
@@ -306,3 +310,36 @@ def crop_image(image_file, output_file=None, height=None, width=None, x=None, y=
     image.crop((x, y, width + x, height + y)).save(output_file)
 
     return output_file
+
+
+####
+# Decorators
+####
+def rate_limited(max_per_second):
+    """
+    Source: https://gist.github.com/gregburek/1441055
+    """
+    lock = threading.Lock()
+    min_interval = 1.0 / max_per_second
+
+    def decorate(func):
+        last_time_called = time.perf_counter()
+
+        @wraps(func)
+        def rate_limited_function(*args, **kwargs):
+            lock.acquire()
+            nonlocal last_time_called
+            elapsed = time.perf_counter() - last_time_called
+            left_to_wait = min_interval - elapsed
+
+            if left_to_wait > 0:
+                time.sleep(left_to_wait)
+
+            ret = func(*args, **kwargs)
+            last_time_called = time.perf_counter()
+            lock.release()
+            return ret
+
+        return rate_limited_function
+
+    return decorate
