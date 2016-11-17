@@ -241,9 +241,12 @@ def create_path(path, is_dir=False):
     return path
 
 
-def save_props(data):
-    create_path(data['save_path'])
-    with open(data['save_path'] + ".json", 'w') as outfile:
+def dump_json(file_, data):
+    create_path(file_)
+    if not file_.endswith('.json'):
+        file_ += '.json'
+
+    with open(file_, 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4)
 
 
