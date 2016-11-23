@@ -43,7 +43,6 @@ def get_datetime():
 
 
 def datetime_to_str(timestamp):
-    # The script is set to use UTC, so all times are in UTC
     return timestamp.isoformat() + "+0000"
 
 
@@ -124,23 +123,8 @@ def generate_key(value=None, salt=None, size=8):
 def create_uid():
     # Named uid and not uuid because this function does not have to use uuid's
     uid = uuid.uuid4().hex
-    logger.debug("Created new uid: {}".format(uid))
+    logger.debug("Created new uid: {uid}".format(uid=uid))
     return uid
-
-
-def get_default_header():
-    default_header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
-    return default_header
-
-
-def get_value(key, object, default_val=None):
-    """
-    Pass in object with a key to get its value, if it can not, it will return `default_val`
-    """
-    try:
-        return object[key]
-    except KeyError:
-        return default_val
 
 
 def make_url_safe(string):
@@ -172,7 +156,7 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
-def get_script_name(ext=True):
+def get_script_name(ext=False):
     name = os.path.basename(sys.argv[0])
     if ext is False:
         name = name.split('.')[0]
@@ -182,8 +166,8 @@ def get_script_name(ext=True):
 ####
 # File/filesystem related function
 ####
-def get_file_ext(url):
-    file_name, file_extension = os.path.splitext(url)
+def get_file_ext(file):
+    file_name, file_extension = os.path.splitext(file)
     return file_extension
 
 
@@ -281,7 +265,8 @@ def get_image_dimension(url):
     from PIL import Image  # pip install pillow
     from io import BytesIO
     size = {'width': None,
-            'height': None}
+            'height': None,
+            }
     try:
         if url.startswith('//'):
             url = "http:" + url
@@ -290,8 +275,8 @@ def get_image_dimension(url):
 
         size['width'], size['height'] = im.size
     except Exception:
-        logger.debug("Error getting image size {}".format(url), exc_info=True)
-        logger.warning("Error getting image size {}".format(url))
+        logger.debug("Error getting image size {url}".format(url=url), exc_info=True)
+        logger.warning("Error getting image size {url}".format(url=url))
 
     return size
 
@@ -343,3 +328,24 @@ def rate_limited(max_per_second):
         return rate_limited_function
 
     return decorate
+
+
+def timeit(stat_tracker_func, name):
+    """
+    Pass in a function and the name of the stat
+    Will time the function that this is a decorator to and send
+    the `name` as well as the value (in seconds) to `stat_tracker_func`
+
+    `stat_tracker_func` can be used to either print out the data or save it
+    """
+    def _timeit(func):
+        def wrapper(*args, **kw):
+            start_time = time.time()
+            result = func(*args, **kw)
+            stop_time = time.time()
+            stat_tracker_func(name, stop_time - start_time)
+
+            return result
+        return wrapper
+
+    return _timeit
