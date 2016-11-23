@@ -75,7 +75,6 @@ class Database:
             logger.debug("Error inserting data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
 
-
     def update(self, table, data_list, matched_field=None, return_col='id'):
         """
         Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and 4 cols)
