@@ -1,5 +1,8 @@
 # Custom Utilities (cutil)
 
+[![PyPI](https://img.shields.io/pypi/v/cutil.svg)](https://pypi.python.org/pypi/cutil)
+[![PyPI](https://img.shields.io/pypi/l/cutil.svg)](https://pypi.python.org/pypi/cutil)
+
 Developed using Python 3.5 (use at least 3.4.2+)
 
 
@@ -8,12 +11,13 @@ Developed using Python 3.5 (use at least 3.4.2+)
 - [BeautifulSoup4](https://pypi.python.org/pypi/beautifulsoup4)
 - [psycopg2](https://pypi.python.org/pypi/psycopg2)
 - [Requests](https://pypi.python.org/pypi/requests)
-- Pillow - `pip3 install pillow`
+- PIL - `pip3 install pillow`
+
+For ubuntu server (to be able to install pillow)
 ```
-For ubuntu server
-sudo apt-get pythons-imaging
-sudo apt-get install libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
-sudo pip install pillow
+$ sudo apt-get pythons-imaging
+$ sudo apt-get install libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
+$ sudo pip install pillow
 ```
 
 ### If using Selenium
@@ -64,10 +68,10 @@ If after using `bprint` in your script, you decide you want to stop using it, ju
 #### fn: **threads**
 Params:
 
-- **num_threads** - _Type: Int_ - Number of threads to run. Must be >= 1
-- **data** - _Type: List_ - Pass a list of things to be processed
-- **cb_run** - _Type: Fn_ - Call back function that will process the data
-- **\*args** - _Type: arguments_ - Pass as many things as you wish, these will all be passed to cb_run after the data item
+- **num_threads** - _Type: Int_ - _Positional argument_ - Number of threads to run. Must be >= 1
+- **data** - _Type: List_ - _Positional argument_ - Pass a list of things to be processed
+- **cb_run** - _Type: Fn_ - _Positional argument_ - Call back function that will process the data
+- **\*args** - _Type: arguments_ - _Positional argument_ - Pass as many things as you wish, these will all be passed to cb_run after the data item
 
 Parse data using x threads with just 1 line of code. This will wait until all data is done being processed before moving on. It is safe to call `threads` from inside other threads _(threadception)_.
 
@@ -76,19 +80,68 @@ Parse data using x threads with just 1 line of code. This will wait until all da
 #### fn: **create_path**
 Params:
 
-- **path** - _Type: String_ - Path to be created
-- **is_dir** - _Type: Boolean_ - Default=False - Named argument. `True` if the path is a dir, `False` if path is a file.
+- **path** - _Type: String_ - _Positional argument_ - Path to be created
+- **is_dir** - _Type: Boolean_ - _Named argument_ - Default: `False` - If the path is a dir set to `True`. If the path includes the filename, set to `False`.
 
 Creates the folder path so it can be used
+
+----------
+
+#### fn: **dump_json**
+Save data to a json file with the options `sort_keys=True` and `indent=4`. Will create the path if it does not already exists.
+
+Params:
+
+- **file_** - _Type: String_ - _Positional argument_ - Where to save the file to (include filename)
+- **data** - _Type: List/Dict_ - _Positional argument_ -  Data to be dumped into a json file
 
 ----------
 
 #### fn: **get_script_name**
 Params:
 
-- **ext** - _Type: Boolean_ - Default: True - Named argument. Do you want the extension to be returned as part of the filename.
+- **ext** - _Type: Boolean_ - _Named argument_ - Default: `False` - Should the extension be returned as part of the name.
 
 Returns the name of the script being run, does not include the directory path
+
+----------
+
+#### fn: **get_file_ext**
+Params:
+
+- **file** - _Type: String_ - _Positional argument_ - Return just the extension of the file. Includes the `.`
+
+----------
+
+#### fn: **norm_path**
+Returns a proper path for OS with vars expanded out
+
+Params:
+
+- **path** - _Type: String_ - _Positional argument_ - Path to be fixed up
+
+----------
+
+#### fn: **create_hashed_path**
+Create a directory structure using the hashed filename
+
+Returns the tuple `(full_path, filename_hash)`. `full_path` does not include the filename
+
+Params:
+
+- **base_path** - _Type: String_ - _Positional argument_ - Path to create the hashed dirs in
+- **name** - _Type: String_ - _Positional argument_ - name of the file to be saved. Used to create the dir hash
+
+----------
+
+#### fn: **parse_price**
+Parse a string to get a low and high price as a float.
+
+Returns a dict with keys `low` and `high`. If there is just 1 price in the string, `low` will be set and `high` will be `None`
+
+Params:
+
+- **price** - _Type: String_ - _Positional argument_ - Price to parse
 
 ----------
 
@@ -102,13 +155,36 @@ Returns `datetime.datetime.now()`
 
 ----------
 
-#### fn: **get_internal_ip**
-Returns the local ip address of the computer
+#### fn: **datetime_to_str**
+Converts a datetime to a json formatted string
+
+Params:
+
+- **timestamp** - _Type: Datetime Object_ - _Positional argument_ - Datetime object to be converted
 
 ----------
 
-#### fn: **get_external_ip**
-Returns the public/external ip address of the computer
+#### fn: **datetime_to_utc**
+Converts a datetime with timezone to utc datetime
+
+Params:
+
+- **timestamp** - _Type: Datetime Object_ - _Positional argument_ - Datetime object to be converted
+
+----------
+
+#### fn: **str_to_date**
+Converts a string date/time to a datetime object
+
+Params:
+
+- **timestamp** - _Type: String_ - _Positional argument_ - String to be formatted
+- **formats** - _Type: List/Tuple_ - _Named argument_ - Default: `["%Y-%m-%dT%H:%M:%S.%f%z", "%Y-%m-%dT%H:%M:%S%z"]` - The format(s) that the string being passed in might be
+
+----------
+
+#### fn: **get_internal_ip**
+Returns the local ip address of the computer
 
 ----------
 
@@ -118,7 +194,7 @@ Returns a _random_ string
 Params:
 - **value** - _Type: String/int/etc._ - _Named argument_ - Default: random int - Value to be encoded to create the return string
 - **salt** - _Type: String/int/etc._ - _Named argument_ - Default: random int - Value to use to help encode the string
-- **size** - _Type: Int_ - _Named argument_ - Default: 8 - Min size the return string shopuld be
+- **size** - _Type: Int_ - _Named argument_ - Default: `8` - Min size the return string should be
 
 ----------
 
@@ -138,84 +214,31 @@ Will replace any characters in a string and return the new string
 
 ----------
 
-#### fn: **get_value**
-Get a value from a dict if it exists, if the key does not exist, will return `None` value
+#### fn: **rreplace**
 Params:
 
-- **key** - _Type: String_ - The key you are looking for
-- **object** - _Type: dict_ - The dict you are looking for said key in
-- **default_value** - _Type: Any_ - Named argument, what to return if the key does not exist
-
-Ex:
-```python
-test_dict = {'valA': 5, 'valB': 3}
-my_val = cutil.get_value('valA', test_dict)  # Returns 5
-my_val = cutil.get_value('valC', test_dict)  # Returns None
-my_val = cutil.get_value('valA', test_dict, default_val=87)  # Returns 5
-my_val = cutil.get_value('valC', test_dict, default_val=87)  # Returns 87
-```
-
-----------
-
-#### fn: **get_default_header**
-Returns a dict with the User Agent set to the UA Chrome uses.
-
-----------
-
-#### fn: **set_url_header**
-Params:
-
-- **url_header** - _Type: dict_ - Dict of header arguments, if `None`, return the value of `get_default_header()`
-
-Returns a header passed in or the `get_default_header` header.
+- **s** - _Type: String_ -- _Positional argument_  String to perform the replace action on
+- **old** - _Type: String_ -- _Positional argument_  The string to be replaced
+- **new** - _Type: String_ -- _Positional argument_  The string to replace `old`
+- **occurrence** - _Type: String_ -- _Positional argument_  From the right, how many times to replace
 
 ----------
 
 #### fn: **make_url_safe**
 Params:
 
-- **string** - _Type: String_ - String that needs to be made safe to use in a web url
+- **string** - _Type: String_ -- _Positional argument_  String that needs to be made safe to use in a web url
 
 Returns the string with the converted chars, uses `urllib.parse.quote_plus(string)`
-
-----------
-
-#### fn: **custom_proxy_setup**
-Params:
-
-- **cb** - _Type: Function_ - Callback function to handle getting a new proxy
-- **iso_country_code** - _Type: String_ - Default: `None` - This will be passed to the callback function
-
-The callback function must return a proxy url as a string
-
-----------
-
-#### fn: **get_current_proxy**
-If you have proxies set, it will return what the current one is
-
-----------
-
-#### fn: **rotate_proxy**
-If you have proxies set, it will get the next one in the list and start using it. Will also return the one it chose. This works with `custom_proxy_setup` if it is used
-
-----------
-
-#### fn: **get_current_apikey**
-If you have apikeys set, it will return what the current one is
-
-----------
-
-#### fn: **rotate_apikey**
-If you have apikeys set, it will get the next one in the list and start using it. Will also return the one it chose.
 
 ----------
 
 #### fn: **get_image_dimension**
 Params:
 
-- **url** - _Type: String_ - image to get WxH from
+- **url** - _Type: String_ - _Positional argument_ - image to get WxH from
 
-Returns 2 values `w, h`
+Returns a dict with keys, `width` and `height`
 
 ----------
 
@@ -223,7 +246,6 @@ Returns 2 values `w, h`
 Returns the path of the cropped image
 
 Params:
-image_file, output_file=None, height=None, width=None, x=None, y=None
 - **image_file** - _Type: String_ - _Positional argument_ - Path to the image to be cropped
 - **output_file** - _Type: String_ - _Named argument_ - Default: `None` - **Required** Path to save the cropped image to
 - **height** - _Type: Int_ - _Named argument_ - Default: `None` - **Required** Height the cropped image should be
@@ -233,6 +255,52 @@ image_file, output_file=None, height=None, width=None, x=None, y=None
 
 ----------
 
+## Decorators
+
+#### fn: **rate_limited**
+Set a rate limit on a function.
+
+Source: https://gist.github.com/gregburek/1441055
+
+Params:
+
+- **max_per_second** - _Type: Integer/Float_ - _Positional argument_ - Max rate per second the function can run
+
+----------
+
+#### fn: **timeit**
+Pass in a function and the name of the stat.
+
+Will time the function that this is a decorator to and send the `name` as well as the value (in seconds) to `stat_tracker_func`
+
+Params:
+
+- **stat_tracker_func** - _Type: Func_ - _Positional argument_ - Function that will process the stats after the function is timed
+- **name** - _Type: String_ - _Positional argument_ - Name of the stat the timed value should be assigned to.
+
+
+Just use like a regular decorator like so:
+```python
+def save_stat(stat_name, value):
+    print(stat_name, value)
+
+@cutil.timeit(save_stat, 'some_name')
+def fn_to_time():
+    time.sleep(1)
+```
+
+If you want to pass a func in a class as `stat_tracker_func`, then in the class `__init__` you will have to set the decorator like so:
+```python
+# self.fn_to_time - a function in the class
+# self.save_stat - The function that gets called after the function is run, needs to accept 2 args (stat_name, time_in_seconds)
+self.fn_to_time = cutil.timeit(self.save_stat, 'some_name')(self.fn_to_time)
+```
+
+
+----------
+
+## Classes
+
 ### **cutil.RepeatingTimer**
 
 #### fn: **`__init__`**
@@ -241,11 +309,16 @@ Params:
 - **interval** - _Type: Int_ - _Positional argument_ - Duration of the timer
 - **func** - _Type: Function_ - _Positional argument_ - Function to call when the timer triggers
 - **repeat** - _Type: Boolean_ - _Named argument_ - Default: `True` - Should the timer reset after it is triggered
+- **max_tries** - _Type: Integer_ - _Named argument_ - Default: `None` - Number of times to repeat before stopping. If `None` it will run until you manually stop it.
+- **args** - _Type: List/Tuple_ - _Named argument_ - Default: `()` - args to be passed to the repeated function
+- **kwargs** - _Type: Dict_ - _Named argument_ - Default: `{}` - kwargs to be passed to the repeated function
+
+*The `__init__` will not start the timer.
 
 ----------
 
 #### fn: **`start`**
-Start the timmer
+Starts the timer
 
 Params:
 _N/A_
@@ -253,7 +326,15 @@ _N/A_
 ----------
 
 #### fn: **`cancel`**
-Stop/disable the timmer
+Stop/disable the timer
+
+Params:
+_N/A_
+
+----------
+
+#### fn: **`reset`**
+Stop/disable the timer and start it again
 
 Params:
 _N/A_
@@ -274,11 +355,12 @@ Params:
 
 #### fn: **getcursor**
 
-Use to get a cursor to make db calls. It will handle commiting the data and rollback if there is an error. Any error/exceptions that happen are passed back to the user
+Use to get a cursor to make db calls. It will handle committing the data and rollback if there is an error. Any error/exceptions that happen are passed back to the user
 ```python
 try:
     with db.getcursor() as cur:
         cur.execute("SELECT * FROM table_name")
+        # Save data to some var
 except Exception as e:
     print("Error with db call: " + str(e))
 ```
@@ -286,9 +368,25 @@ except Exception as e:
 ----------
 
 #### fn: **insert**
+
+This builds a proper bulk insert query.
+Returns a list of the column value for all rows inserted.
+
 Params:
 
 - **table** - _Type: String_ - _Positional argument_ - Table that data should be inserted into. Include schema.
-- **data** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. List must be a list of dicts
-- **id_col** - _Type: String_ - _Named argument_ - Default: 'id' - Primary key column of the table
+- **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
+- **id_col** - _Type: String_ - _Named argument_ - Default: `id` - Primary key column of the table. This will be used to know what to return.
 
+----------
+
+#### fn: **update**
+**WIP**
+Returns a list of the column value for all rows updated (this is currently faked by using the data passed in).
+
+Params:
+
+- **table** - _Type: String_ - _Positional argument_ - Table that data should be inserted into. Include schema.
+- **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
+- **matched_field** - _Type: String_ - _Named argument_ - Default: `id` The field used to update the row.
+- **return_col** - _Type: String_ - _Named argument_ - Default: `id` - The field to return on update per row.
