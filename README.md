@@ -106,6 +106,24 @@ Returns the name of the script being run, does not include the directory path
 
 ----------
 
+#### fn: **chunks_of**
+Yields lists of a set size from another list
+Params:
+
+- **max_chunk_size** - _Type: Int - _Positional argument_ - The max length of the list that is yieled. The last yeild may be smaller
+- **list_to_chunk** - _Type: List - _Positional argument_ - The list to chunk up
+
+----------
+
+#### fn: **split_into**
+Yields a max number of lists
+Params:
+
+- **max_num_chunks** - _Type: Int - _Positional argument_ - The max number of lists to return
+- **list_to_chunk** - _Type: List - _Positional argument_ - The list to chunk up
+
+----------
+
 #### fn: **get_file_ext**
 Params:
 
