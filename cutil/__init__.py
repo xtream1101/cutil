@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import uuid
+import math
 import time
 import pytz
 import json
@@ -161,6 +162,22 @@ def get_script_name(ext=False):
     if ext is False:
         name = name.split('.')[0]
     return name
+
+
+def chunks_of(max_chunk_size, list_to_chunk):
+    """
+    Yields the list with a max size of max_chunk_size
+    """
+    for i in range(0, len(list_to_chunk), max_chunk_size):
+        yield list_to_chunk[i:i + max_chunk_size]
+
+
+def split_into(max_num_chunks, list_to_chunk):
+    """
+    Yields the list with a max total size of max_num_chunks
+    """
+    max_chunk_size = math.ceil(len(list_to_chunk) / max_num_chunks)
+    return chunks_of(max_chunk_size, list_to_chunk)
 
 
 ####
