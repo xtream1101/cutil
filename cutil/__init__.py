@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import uuid
+import math
 import time
 import pytz
 import json
@@ -163,13 +164,20 @@ def get_script_name(ext=False):
     return name
 
 
-def chunks(list_to_chunk, max_chunk_size):
+def chunks_of(max_chunk_size, list_to_chunk):
     """
-    Yield successive max_chunk_size-sized chunks from list_to_chunk.
-    Source: http://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+    Yields the list with a max size of max_chunk_size
     """
     for i in range(0, len(list_to_chunk), max_chunk_size):
         yield list_to_chunk[i:i + max_chunk_size]
+
+
+def split_into(max_num_chunks, list_to_chunk):
+    """
+    Yields the list with a max total size of max_num_chunks
+    """
+    max_chunk_size = math.ceil(len(list_to_chunk) / max_num_chunks)
+    return chunks_of(max_chunk_size, list_to_chunk)
 
 
 ####
