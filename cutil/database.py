@@ -61,7 +61,7 @@ class Database:
             with self.getcursor() as cur:
                 query = "INSERT INTO {table} ({fields}) VALUES {values} RETURNING {id_col}"\
                         .format(table=table,
-                                fields=','.join(data_list[0].keys()),
+                                fields='{0}{1}{0}'.format('"', '", "'.join(data_list[0].keys())),
                                 values=','.join(['%s'] * len(data_list)),
                                 id_col=id_col
                                 )
