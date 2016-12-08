@@ -163,6 +163,15 @@ def get_script_name(ext=False):
     return name
 
 
+def chunks(list_to_chunk, max_chunk_size):
+    """
+    Yield successive max_chunk_size-sized chunks from list_to_chunk.
+    Source: http://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+    """
+    for i in range(0, len(list_to_chunk), max_chunk_size):
+        yield list_to_chunk[i:i + max_chunk_size]
+
+
 ####
 # File/filesystem related function
 ####
