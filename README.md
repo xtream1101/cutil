@@ -319,6 +319,29 @@ self.fn_to_time = cutil.timeit(self.save_stat, 'some_name')(self.fn_to_time)
 
 ----------
 
+## Regex
+
+#### fn: **get_proxy_parts**
+Break a proxy string into a dict of its parts
+
+Params:
+
+- **proxy** - _Type: String_ - _Positional argument_ - the proxy string
+
+Returns:
+A dict with the folowing parts (keys are always there, just set to `None` if the part is not found)
+
+```python
+{'schema': None,
+ 'user': None,
+ 'password': None,
+ 'host': None,
+ 'port': None
+}
+```
+
+----------
+
 ## Classes
 
 ### **cutil.RepeatingTimer**
