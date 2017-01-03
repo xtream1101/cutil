@@ -395,4 +395,7 @@ def get_proxy_parts(proxy):
     else:
         logger.error("Invalid proxy format `{proxy}`".format(proxy=proxy))
 
+    if proxy_parts['port'] is None:
+        proxy_parts['port'] = '80'
+
     return proxy_parts

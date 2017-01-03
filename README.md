@@ -329,6 +329,7 @@ Params:
 - **proxy** - _Type: String_ - _Positional argument_ - the proxy string
 
 Returns:
+
 A dict with the folowing parts (keys are always there, just set to `None` if the part is not found)
 
 ```python
@@ -336,7 +337,7 @@ A dict with the folowing parts (keys are always there, just set to `None` if the
  'user': None,
  'password': None,
  'host': None,
- 'port': None
+ 'port': None  # Will default to 80 if no port is found
 }
 ```
 
