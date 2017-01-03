@@ -366,3 +366,33 @@ def timeit(stat_tracker_func, name):
         return wrapper
 
     return _timeit
+
+
+####
+# Regex
+####
+# Keep re.compile's outside of fn as to only create it once
+proxy_parts_pattern = re.compile('^(?:(?P<schema>\w+):\/\/)(?:(?P<user>.*):(?P<password>.*)@)?(?P<host>[^:]*)(?::(?P<port>\d+))?$')
+
+
+def get_proxy_parts(proxy):
+    """
+    Take a proxy url and break it up to its parts
+    """
+    proxy_parts = {'schema': None,
+                   'user': None,
+                   'password': None,
+                   'host': None,
+                   'port': None,
+                   }
+    # Find parts
+    results = re.match(proxy_parts_pattern, proxy)
+    if results:
+        matched = results.groupdict()
+        for key in proxy_parts:
+            proxy_parts[key] = matched.get(key)
+
+    else:
+        logger.error("Invalid proxy format `{proxy}`".format(proxy=proxy))
+
+    return proxy_parts
