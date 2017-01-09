@@ -343,6 +343,16 @@ A dict with the folowing parts (keys are always there, just set to `None` if the
 
 ----------
 
+#### fn: **remove_html_tag**
+Returns a string with the html tag and all its contents from a string
+
+Params:
+
+- **input_str** - _Type: String/Soup Object_ - _Named argument_ - Default: `''` - **Required** The html content to be remove the tag data from. can be a string or a beautiful soup object (gets converted to a string in the function)
+- **tag** - _Type: String_ - _Named argument_ - Default: `None` - **Required** the tag name without the brackets. if `None` the `input_str` is returned without change.
+
+----------
+
 ## Classes
 
 ### **cutil.RepeatingTimer**

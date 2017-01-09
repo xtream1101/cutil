@@ -399,3 +399,15 @@ def get_proxy_parts(proxy):
         proxy_parts['port'] = '80'
 
     return proxy_parts
+
+
+def remove_html_tag(input_str='', tag=None):
+    """
+    Returns a string with the html tag and all its contents from a string
+    """
+    result = input_str
+    if tag is not None:
+        pattern = re.compile('<{tag}[\s\S]+?/{tag}>'.format(tag=tag))
+        result = re.sub(pattern, '', str(input_str))
+
+    return result
