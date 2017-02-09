@@ -39,7 +39,7 @@ class Database:
     def insert(self, table, data_list, id_col='id'):
         """
         TODO: rename `id_col` -> `return_col`
-        Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and 4 cols)
+        Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and n cols)
         for inserting data then executemany()
 
         TODO: Is there a limit of length the query can be? If so handle it.
@@ -47,7 +47,7 @@ class Database:
         # Make sure that `data_list` is a list
         if not isinstance(data_list, list):
             data_list = [data_list]
-
+        # Make sure data_list has content
         if len(data_list) == 0:
             # No need to continue
             return []
@@ -69,6 +69,68 @@ class Database:
                 cur.execute(query)
 
                 return [t[0] for t in cur.fetchall()]
+
+        except Exception as e:
+            logger.exception("Error inserting data")
+            logger.debug("Error inserting data: {data}".format(data=data_list))
+            raise e.with_traceback(sys.exc_info()[2])
+
+    def upsert(self, table, data_list, on_conflict=None):
+        """
+        WIP
+        Create a bulk upsert statement which is much faster (~2x in tests with 10k & 100k rows and n cols)
+        for upserting data then executemany()
+
+        TODO: Is there a limit of length the query can be? If so handle it.
+        """
+        # Make sure that `data_list` is a list
+        if not isinstance(data_list, list):
+            data_list = [data_list]
+        # Make sure data_list has content
+        if len(data_list) == 0:
+            # No need to continue
+            return []
+
+        # Make sure on_conflict is a list
+        if not isinstance(on_conflict, list):
+            on_conflict = [on_conflict]
+        # Make sure on_conflict has data
+        if len(on_conflict) == 0 or on_conflict[0] is None:
+            # No need to continue
+            logger.critical("Must pass in `on_conflict` argument")
+            # TODO: raise some error here rather then returning None
+            return None
+
+        # Data in the list must be dicts (just check the first one)
+        if not isinstance(data_list[0], dict):
+            logger.critical("Data must be a list of dicts")
+            # Do not return here, let the exception handle the error that will be thrown when the query runs
+
+        try:
+            with self.getcursor() as cur:
+                fields_update_tmp = []
+                for key in data_list[0].keys():
+                    fields_update_tmp.append('"{0}"="excluded"."{0}"'.format(key))
+
+                query = """INSERT INTO {table} ({fields_insert})
+                           SELECT
+                               {select}
+                           ON conflict ({on_conflict}) do
+                           UPDATE SET
+                               {set}"""\
+                        .format(table=table,
+                                fields_insert='{0}{1}{0}'.format('"', '", "'.join(data_list[0].keys())),
+                                select=','.join(['unnest(%s)'] * len(data_list[0])),
+                                on_conflict=', '.join(on_conflict),
+                                set=', '.join(fields_update_tmp),
+                                )
+                values = [list(v.values()) for v in data_list]
+                values = list(map(list, zip(*values)))
+                query = cur.mogrify(query, values)
+
+                cur.execute(query)
+
+                # return [t[0] for t in cur.fetchall()]
 
         except Exception as e:
             logger.exception("Error inserting data")
