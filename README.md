@@ -437,7 +437,7 @@ Params:
 #### fn: **upsert**
 
 This builds a proper bulk upsert query.
-* TODO: Return a list of the column value for all rows affected.
+Returns a list of the column value for all rows affected.
 
 Params:
 
