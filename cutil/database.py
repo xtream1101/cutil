@@ -88,13 +88,9 @@ class Database:
     def upsert(self, table, data_list, on_conflict_fields, on_conflict_action='update',
                update_fields=None, return_cols='id'):
         """
-        WIP
-        `on_conflict_action` [Not Implemented Yet]: Defaults to `update`, other option is `nothing`
-
         Create a bulk upsert statement which is much faster (~6x in tests with 10k & 100k rows and n cols)
         for upserting data then executemany()
 
-        TODO: Support on conflict do nothing action
         TODO: Is there a limit of length the query can be? If so handle it.
         """
         # Make sure that `data_list` is a list
