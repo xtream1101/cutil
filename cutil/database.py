@@ -78,7 +78,7 @@ class Database:
                 query = cur.mogrify(query, [tuple(v.values()) for v in data_list])
                 cur.execute(query)
 
-                return [t for t in cur.fetchall()]
+                return cur.fetchall()
 
         except Exception as e:
             logger.exception("Error inserting data")
@@ -171,14 +171,14 @@ class Database:
 
                 cur.execute(query)
 
-                return [t for t in cur.fetchall()]
+                return cur.fetchall()
 
         except Exception as e:
             logger.exception("Error inserting data")
             logger.debug("Error inserting data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
 
-    def update(self, table, data_list, matched_field=None, returns_col='id'):
+    def update(self, table, data_list, matched_field=None, return_cols='id'):
         """
         Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and 4 cols)
         for inserting data then executemany()
@@ -219,11 +219,11 @@ class Database:
                     matched_value = row.get(matched_field)
                     del row[matched_field]
 
-                    query = "UPDATE {table} SET {data} WHERE {matched_field}=%s RETURNING {return_col}"\
+                    query = "UPDATE {table} SET {data} WHERE {matched_field}=%s RETURNING {return_cols}"\
                             .format(table=table,
                                     data=','.join("%s=%%s" % u for u in row.keys()),
                                     matched_field=matched_field,
-                                    return_col=return_col
+                                    return_cols=return_cols
                                     )
                     values = list(row.values())
                     values.append(matched_value)
