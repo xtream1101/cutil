@@ -143,22 +143,28 @@ class Database:
                     # TODO: raise some error here rather then returning None
                     return None
 
+            # If everything is good to go with the update fields
+            fields_update_tmp = []
+            for key in data_list[0].keys():
+                fields_update_tmp.append('"{0}"="excluded"."{0}"'.format(key))
+            conflict_action_sql = 'UPDATE SET {update_fields}'\
+                                  .format(update_fields=', '.join(fields_update_tmp))
+        else:
+            # Do nothing on conflict
+            conflict_action_sql = 'NOTHING'
+
         try:
             with self.getcursor() as cur:
-                fields_update_tmp = []
-                for key in data_list[0].keys():
-                    fields_update_tmp.append('"{0}"="excluded"."{0}"'.format(key))
-
                 query = """INSERT INTO {table} ({insert_fields})
                            SELECT {values}
                            ON CONFLICT ({on_conflict_fields}) DO
-                           UPDATE SET {update_fields}
+                           {conflict_action_sql}
                            RETURNING {return_cols}
                         """.format(table=table,
                                    insert_fields='"{0}"'.format('", "'.join(data_list[0].keys())),
                                    values=','.join(['unnest(%s)'] * len(data_list[0])),
                                    on_conflict_fields=', '.join(on_conflict_fields),
-                                   update_fields=', '.join(fields_update_tmp),
+                                   conflict_action_sql=conflict_action_sql,
                                    return_cols=', '.join(return_cols),
                                    )
                 # Get all the values for each row and create a lists of lists
