@@ -430,7 +430,23 @@ Params:
 
 - **table** - _Type: String_ - _Positional argument_ - Table that data should be inserted into. Include schema.
 - **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
-- **id_col** - _Type: String_ - _Named argument_ - Default: `id` - Primary key column of the table. This will be used to know what to return.
+- **return_cols** - _Type: String/List_ - _Named argument_ - Default: `id` - List of fields (can be a string of a single field) to be returned of rows affected.
+
+----------
+
+#### fn: **upsert**
+
+This builds a proper bulk upsert query.
+* TODO: Return a list of the column value for all rows affected.
+
+Params:
+
+- **table** - _Type: String_ - _Positional argument_ - Table that data should be inserted into. Include schema.
+- **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
+- **on_conflict_fields** - _Type: String/List_ - _Positional argument_ - List of fields (can be a string of a single field) of field names that will trigger a conflict
+- **on_conflict_action** - _Type: String_ - _Named argument_ - Default: `update` - Action to take when `ON CONFLICT` is triggered. By default it will update the fields passed in by `update_fields`, or if `nothing` is passed it will `DO NOTHING` action
+- **update_fields** - _Type: String/List_ - _Named argument_ - Default: `None` - The default will use all the fields minus the fields used in `on_conflict_fields`. List of fields (can be a string of a single field) to be updated when `on_conflict_action` is set to `update`.
+- **return_cols** - _Type: String/List_ - _Named argument_ - Default: `id` - List of fields (can be a string of a single field) to be returned of rows affected.
 
 ----------
 
@@ -443,4 +459,4 @@ Params:
 - **table** - _Type: String_ - _Positional argument_ - Table that data should be inserted into. Include schema.
 - **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
 - **matched_field** - _Type: String_ - _Named argument_ - Default: `id` The field used to update the row.
-- **return_col** - _Type: String_ - _Named argument_ - Default: `id` - The field to return on update per row.
+- **return_cols** - _Type: String/List_ - _Named argument_ - Default: `id` - List of fields (can be a string of a single field) to be returned of rows affected.
