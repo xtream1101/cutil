@@ -23,10 +23,10 @@ class Database:
         logger.debug("Connected to database: {host}".format(host=db_config['db_host']))
 
     @contextmanager
-    def getcursor(self):
+    def getcursor(self, **kwargs):
         conn = self.pool.getconn()
         try:
-            yield conn.cursor()
+            yield conn.cursor(**kwargs)
             conn.commit()
 
         except Exception as e:
