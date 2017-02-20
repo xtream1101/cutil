@@ -199,22 +199,28 @@ def norm_path(path):
     return path
 
 
-def create_hashed_path(base_path, name):
+def create_hashed_path(base_path, name, depth=2):
     """
     Create a directory structure using the hashed filename
     :return: string of the path to save to not including filename/ext
     """
-    name_hash = hashlib.md5(name.encode('utf-8')).hexdigest()
-    if base_path.endswith('/') or base_path.endswith('\\'):
+    if depth > 16:
+        logger.warning("depth cannot be greater then 16, setting to 16")
+        depth = 16
+
+    name_hash = hashlib.md5(str(name).encode('utf-8')).hexdigest()
+    if base_path.endswith(os.path.sep):
         save_path = base_path
     else:
-        save_path = base_path + "/"
-    depth = 2  # will have depth of n dirs (MAX of 16 because length of md5 hash)
+        save_path = base_path + os.path.sep
     for i in range(1, depth + 1):
         end = i * 2
         start = end - 2
-        save_path += name_hash[start:end] + "/"
-    return save_path, name_hash
+        save_path += name_hash[start:end] + os.path.sep
+
+    return {'path': save_path,
+            'hash': name_hash,
+            }
 
 
 def create_path(path, is_dir=False):
