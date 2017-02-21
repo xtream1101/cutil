@@ -258,16 +258,20 @@ def dump_json(file_, data):
 
 
 # Lets only do this once
-price_pattern = re.compile('([\d,.]+)(\D*([\d,.]+))?')
+price_pattern = re.compile('(?P<low>[\d,.]+)(?:\D*(?P<high>[\d,.]+))?')
 
 
 def parse_price(price):
+    found_price = {'low': None,
+                   'high': None
+                   }
     price_raw = re.search(price_pattern, price)
-    price = {'low': price_raw.group(1),
-             'high': price_raw.group(3)
-             }
+    if price_raw:
+        matched = price_raw.groupdict()
+        found_price['low'] = matched.get('low')
+        found_price['high'] = matched.get('high')
 
-    for key, value in price.items():
+    for key, value in found_price.items():
         if value is not None:
             new_value = value.replace(',', '').replace('.', '')
             try:
@@ -278,9 +282,9 @@ def parse_price(price):
             except IndexError:
                 # Price is 99 or less with no cents
                 pass
-            price[key] = float(new_value)
+            found_price[key] = float(new_value)
 
-    return price
+    return found_price
 
 
 def get_image_dimension(url):
