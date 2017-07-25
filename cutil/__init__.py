@@ -157,6 +157,19 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
+def flatten(dict_obj, prev_key='', sep='_'):
+    items = {}
+    for key, value in dict_obj.items():
+        new_key = prev_key + sep + key if prev_key != '' else key
+
+        if isinstance(value, dict):
+            items.update(flatten(value, new_key))
+        else:
+            items[new_key] = value
+
+    return items
+
+
 def get_script_name(ext=False):
     name = os.path.basename(sys.argv[0])
     if ext is False:

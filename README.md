@@ -244,6 +244,15 @@ Params:
 
 ----------
 
+#### fn: **flatten**
+Params:
+
+- **dict_obj** - _Type: Dict_ -- _Positional argument_  Dict of dicts to be flattened
+- **prev_key** - _Type: String_ -- _Named argument_ -Default: blank str - Not used by user, used when the fn calles itself
+- **sep** - _Type: String_ -- _Named argument_ - Default: `_` - The string to separate the dict keys
+
+----------
+
 #### fn: **make_url_safe**
 Params:
 
