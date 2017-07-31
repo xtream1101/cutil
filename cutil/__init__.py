@@ -19,6 +19,7 @@ import hashlib
 import logging
 import datetime
 import threading
+import collections
 from hashids import Hashids
 from functools import wraps
 
@@ -157,6 +158,32 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
+def flatten(dict_obj, prev_key='', sep='_'):
+    items = {}
+    for key, value in dict_obj.items():
+        new_key = prev_key + sep + key if prev_key != '' else key
+
+        if isinstance(value, dict):
+            items.update(flatten(value, new_key))
+        else:
+            items[new_key] = value
+
+    return items
+
+
+def update_dict(d, u):
+    """
+    Source: https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+    """
+    for k, v in u.items():
+        if isinstance(v, collections.Mapping):
+            r = update_dict(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d
+
+
 def get_script_name(ext=False):
     name = os.path.basename(sys.argv[0])
     if ext is False:
@@ -258,16 +285,20 @@ def dump_json(file_, data):
 
 
 # Lets only do this once
-price_pattern = re.compile('([\d,.]+)(\D*([\d,.]+))?')
+price_pattern = re.compile('(?P<low>[\d,.]+)(?:\D*(?P<high>[\d,.]+))?')
 
 
 def parse_price(price):
+    found_price = {'low': None,
+                   'high': None
+                   }
     price_raw = re.search(price_pattern, price)
-    price = {'low': price_raw.group(1),
-             'high': price_raw.group(3)
-             }
+    if price_raw:
+        matched = price_raw.groupdict()
+        found_price['low'] = matched.get('low')
+        found_price['high'] = matched.get('high')
 
-    for key, value in price.items():
+    for key, value in found_price.items():
         if value is not None:
             new_value = value.replace(',', '').replace('.', '')
             try:
@@ -278,9 +309,9 @@ def parse_price(price):
             except IndexError:
                 # Price is 99 or less with no cents
                 pass
-            price[key] = float(new_value)
+            found_price[key] = float(new_value)
 
-    return price
+    return found_price
 
 
 def get_image_dimension(url):
