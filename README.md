@@ -253,6 +253,19 @@ Params:
 
 ----------
 
+#### fn: **update_dict**
+
+Update a dict with another dict with nested keys
+
+Params:
+
+- **d** - _Type: Dict_ -- _Positional argument_ Dict to update
+- **u** - _Type: Dict_ -- _Positional argument_ Dict to combine with `d`
+
+Returns New dict with combined keys
+
+----------
+
 #### fn: **make_url_safe**
 Params:
 
