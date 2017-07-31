@@ -19,6 +19,7 @@ import hashlib
 import logging
 import datetime
 import threading
+import collections
 from hashids import Hashids
 from functools import wraps
 
@@ -168,6 +169,19 @@ def flatten(dict_obj, prev_key='', sep='_'):
             items[new_key] = value
 
     return items
+
+
+def update_dict(d, u):
+    """
+    Source: https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+    """
+    for k, v in u.items():
+        if isinstance(v, collections.Mapping):
+            r = update_dict(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d
 
 
 def get_script_name(ext=False):
