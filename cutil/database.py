@@ -1,8 +1,22 @@
 import sys
+import json
 import logging
 from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
+
+
+def _check_values(in_values):
+        """ Check if values need to be converted before they get inserted
+        """
+        out_values = []
+        for value in in_values:
+            if isinstance(value, (dict, list, tuple)):
+                value = json.dumps(value)
+
+            out_values.append(value)
+
+        return out_values
 
 
 class Database:
@@ -75,7 +89,10 @@ class Database:
                                 values=','.join(['%s'] * len(data_list)),
                                 return_cols=', '.join(return_cols),
                                 )
-                query = cur.mogrify(query, [tuple(v.values()) for v in data_list])
+                values = [tuple(v.values()) for v in data_list]
+                values = _check_values(values)
+
+                query = cur.mogrify(query, values)
                 cur.execute(query)
 
                 return cur.fetchall()
@@ -167,6 +184,8 @@ class Database:
                 values = [list(v.values()) for v in data_list]
                 # Transpose list of lists
                 values = list(map(list, zip(*values)))
+                values = _check_values(values)
+
                 query = cur.mogrify(query, values)
 
                 cur.execute(query)
@@ -227,6 +246,8 @@ class Database:
                                     )
                     values = list(row.values())
                     values.append(matched_value)
+
+                    values = _check_values(values)
 
                     query = cur.mogrify(query, values)
                     query_list.append(query)
