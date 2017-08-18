@@ -7,16 +7,16 @@ logger = logging.getLogger(__name__)
 
 
 def _check_values(in_values):
-        """ Check if values need to be converted before they get inserted
+        """ Check if values need to be converted before they get mogrify'd
         """
         out_values = []
         for value in in_values:
-            if isinstance(value, (dict, list, tuple)):
-                value = json.dumps(value)
+            if isinstance(value, (dict, list)):
+                out_values.append(json.dumps(value))
+            else:
+                out_values.append(value)
 
-            out_values.append(value)
-
-        return out_values
+        return tuple(out_values)
 
 
 class Database:
@@ -52,12 +52,12 @@ class Database:
 
     def insert(self, table, data_list, return_cols='id'):
         """
-        TODO: rename `id_col` -> `return_col`
         Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and n cols)
         for inserting data then executemany()
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
+        data_list = data_list.copy()  # Create copy so the original list does not get modified
         # Make sure that `data_list` is a list
         if not isinstance(data_list, list):
             data_list = [data_list]
@@ -89,8 +89,9 @@ class Database:
                                 values=','.join(['%s'] * len(data_list)),
                                 return_cols=', '.join(return_cols),
                                 )
-                values = [tuple(v.values()) for v in data_list]
-                values = _check_values(values)
+                values = []
+                for row in [tuple(v.values()) for v in data_list]:
+                    values.append(_check_values(row))
 
                 query = cur.mogrify(query, values)
                 cur.execute(query)
@@ -110,6 +111,7 @@ class Database:
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
+        data_list = data_list.copy()  # Create copy so the original list does not get modified
         # Make sure that `data_list` is a list
         if not isinstance(data_list, list):
             data_list = [data_list]
@@ -181,10 +183,12 @@ class Database:
                                    return_cols=', '.join(return_cols),
                                    )
                 # Get all the values for each row and create a lists of lists
-                values = [list(v.values()) for v in data_list]
+                values = []
+                for row in [list(v.values()) for v in data_list]:
+                    values.append(_check_values(row))
+
                 # Transpose list of lists
                 values = list(map(list, zip(*values)))
-                values = _check_values(values)
 
                 query = cur.mogrify(query, values)
 
@@ -193,8 +197,8 @@ class Database:
                 return cur.fetchall()
 
         except Exception as e:
-            logger.exception("Error inserting data")
-            logger.debug("Error inserting data: {data}".format(data=data_list))
+            logger.exception("Error upserting data")
+            logger.debug("Error upserting data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
 
     def update(self, table, data_list, matched_field=None, return_cols='id'):
@@ -204,6 +208,7 @@ class Database:
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
+        data_list = data_list.copy()  # Create copy so the original list does not get modified
         if matched_field is None:
             # Assume the id field
             logger.info("Matched field not defined, assuming the `id` field")
@@ -246,7 +251,6 @@ class Database:
                                     )
                     values = list(row.values())
                     values.append(matched_value)
-
                     values = _check_values(values)
 
                     query = cur.mogrify(query, values)
