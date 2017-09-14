@@ -11,10 +11,10 @@ def _check_values(in_values):
         """
         out_values = []
         for value in in_values:
-            if isinstance(value, (dict, list)):
-                out_values.append(json.dumps(value))
-            else:
-                out_values.append(value)
+            # if isinstance(value, (dict, list)):
+            #     out_values.append(json.dumps(value))
+            # else:
+            out_values.append(value)
 
         return tuple(out_values)
 
