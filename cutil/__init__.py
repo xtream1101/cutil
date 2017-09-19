@@ -22,6 +22,8 @@ import threading
 import collections
 from hashids import Hashids
 from functools import wraps
+from operator import itemgetter
+from functools import cmp_to_key
 
 
 logger = logging.getLogger(__name__)
@@ -103,6 +105,26 @@ def threads(num_threads, data, callback, *args, **kwargs):
 ####
 # Other functions
 ####
+def multikey_sort(items, columns):
+    """Source: https://stackoverflow.com/questions/1143671/python-sorting-list-of-dictionaries-by-multiple-keys
+    """
+    comparers = [
+        ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1))
+        for col in columns
+    ]
+
+    def cmp(a, b):
+        return (a > b) - (a < b)
+
+    def comparer(left, right):
+        comparer_iter = (
+            cmp(fn(left), fn(right)) * mult
+            for fn, mult in comparers
+        )
+        return next((result for result in comparer_iter if result), 0)
+    return sorted(items, key=cmp_to_key(comparer))
+
+
 def get_internal_ip():
     return socket.gethostbyname(socket.gethostname())
 
