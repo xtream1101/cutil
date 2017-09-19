@@ -203,6 +203,17 @@ Params:
 
 ----------
 
+#### fn: **multikey_sort**
+Sort a list of dicts by multiple keys
+Source: https://stackoverflow.com/questions/1143671/python-sorting-list-of-dictionaries-by-multiple-keys
+
+Params:
+
+- **items** - _Type: List_ - _Positional argument_ - List of dicts to be sorted
+- **columns** - _Type: List/Tuple_ - _Positional argument_ - List of keys to sort by
+
+----------
+
 #### fn: **get_internal_ip**
 Returns the local ip address of the computer
 
