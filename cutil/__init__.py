@@ -298,7 +298,8 @@ def create_path(path, is_dir=False):
 
 
 def dump_json(file_, data, **kwargs):
-    json_args = {'sort_keys':True, 'indent':4}
+    json_args = {'sort_keys': True,
+                 'indent': 4}
     json_args.update(**kwargs)
 
     create_path(file_)
