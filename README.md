@@ -94,6 +94,7 @@ Params:
 
 - **file_** - _Type: String_ - _Positional argument_ - Where to save the file to (include filename)
 - **data** - _Type: List/Dict_ - _Positional argument_ -  Data to be dumped into a json file
+- **\*\*kwargs** - _Type: Named args_ - _Named arguments_ - Args that will be passed to `json.dump()`
 
 ----------
 
