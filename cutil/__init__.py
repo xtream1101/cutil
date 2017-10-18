@@ -297,13 +297,16 @@ def create_path(path, is_dir=False):
     return path
 
 
-def dump_json(file_, data):
+def dump_json(file_, data, **kwargs):
+    json_args = {'sort_keys':True, 'indent':4}
+    json_args.update(**kwargs)
+
     create_path(file_)
     if not file_.endswith('.json'):
         file_ += '.json'
 
     with open(file_, 'w') as outfile:
-        json.dump(data, outfile, sort_keys=True, indent=4)
+        json.dump(data, outfile, **json_args)
 
 
 # Lets only do this once
