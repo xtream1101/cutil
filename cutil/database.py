@@ -26,9 +26,13 @@ class Database:
 
         self.table_raw = table_raw
         try:
+            # Set default port is port is not passed
+            if 'db_port' not in db_config:
+                db_config['db_port'] = 5432
+
             self.pool = ThreadedConnectionPool(minconn=1,
                                                maxconn=max_connections,
-                                               dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass}"
+                                               dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass} port={db_port}"
                                                    .format(**db_config))
         except Exception:
             logger.exception("Error in db connection")
