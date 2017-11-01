@@ -435,7 +435,7 @@ _N/A_
 #### fn: **`__init__`**
 Params:
 
-- **db_config** - _Type: Dict_ - _Positional argument_ - Dictionary with the keys `db_name`, `db_user`, `db_host`, `db_pass`
+- **db_config** - _Type: Dict_ - _Positional argument_ - Dictionary with the keys `db_name`, `db_user`, `db_host`, `db_pass`, `db_port`
 - **table_raw** - _Type: String_ - _Named argument_ - Default: `None` - The table that you are inserting data into
 - **max_connections** - _Type: Int_ - _Named argument_ - Default: 10 - The size of the db pool
 
