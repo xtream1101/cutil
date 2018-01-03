@@ -314,11 +314,11 @@ Params:
 #### fn: **rate_limited**
 Set a rate limit on a function.
 
-Source: https://gist.github.com/gregburek/1441055
+Uses https://github.com/tomasbasham/ratelimit
 
 Params:
 
-- **max_per_second** - _Type: Integer/Float_ - _Positional argument_ - Max rate per second the function can run
+- **period** - _Type: Integer/Float_ - _Positional argument_ - Max rate per second the function can run
 
 ----------
 

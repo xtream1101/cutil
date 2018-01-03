@@ -24,6 +24,7 @@ from hashids import Hashids
 from functools import wraps
 from operator import itemgetter
 from functools import cmp_to_key
+from ratelimit import rate_limited
 
 
 logger = logging.getLogger(__name__)
@@ -380,7 +381,7 @@ def crop_image(image_file, output_file=None, height=None, width=None, x=None, y=
 ####
 # Decorators
 ####
-def rate_limited(max_per_second):
+def rate_limited_old(max_per_second):
     """
     Source: https://gist.github.com/gregburek/1441055
     """
