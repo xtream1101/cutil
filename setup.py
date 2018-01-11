@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.5.7',
+    version='2.5.8',
     description='A collection of useful functions',
     author='Eddy Hintze',
     author_email="eddy.hintze@gmail.com",
@@ -20,5 +20,6 @@ setup(
     ],
     install_requires=['hashids',
                       'pytz',
+                      'ratelimit',
                       ]
 )
