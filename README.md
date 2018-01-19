@@ -430,7 +430,7 @@ _N/A_
 ----------
 
 ### **cutil.Database**
-\* Currently only supports postgres
+\* Currently only supports postgres/redshift
 
 #### fn: **`__init__`**
 Params:
@@ -452,6 +452,12 @@ try:
 except Exception as e:
     print("Error with db call: " + str(e))
 ```
+
+----------
+
+#### fn: **close**
+
+This will close all connection that were created.
 
 ----------
 

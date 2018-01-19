@@ -54,6 +54,9 @@ class Database:
         finally:
             self.pool.putconn(conn)
 
+    def close(self):
+        self.pool.closeall()
+
     def insert(self, table, data_list, return_cols='id'):
         """
         Create a bulk insert statement which is much faster (~2x in tests with 10k & 100k rows and n cols)
