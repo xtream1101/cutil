@@ -178,24 +178,21 @@ class Database:
         try:
             with self.getcursor() as cur:
                 query = """INSERT INTO {table} ({insert_fields})
-                           SELECT {values}
+                           VALUES {values}
                            ON CONFLICT ({on_conflict_fields}) DO
                            {conflict_action_sql}
                            RETURNING {return_cols}
                         """.format(table=table,
-                                   insert_fields='"{0}"'.format('", "'.join(data_list[0].keys())),
-                                   values=','.join(['unnest(%s)'] * len(data_list[0])),
-                                   on_conflict_fields=', '.join(on_conflict_fields),
+                                   insert_fields='"{0}"'.format('","'.join(data_list[0].keys())),
+                                   values=','.join(['%s'] * len(data_list)),
+                                   on_conflict_fields=','.join(on_conflict_fields),
                                    conflict_action_sql=conflict_action_sql,
-                                   return_cols=', '.join(return_cols),
+                                   return_cols=','.join(return_cols),
                                    )
                 # Get all the values for each row and create a lists of lists
                 values = []
                 for row in [list(v.values()) for v in data_list]:
                     values.append(_check_values(row))
-
-                # Transpose list of lists
-                values = list(map(list, zip(*values)))
 
                 query = cur.mogrify(query, values)
 
