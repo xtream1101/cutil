@@ -314,11 +314,12 @@ Params:
 #### fn: **rate_limited**
 Set a rate limit on a function.
 
-Uses https://github.com/tomasbasham/ratelimit
+Modified from https://github.com/tomasbasham/ratelimit/tree/0ca5a616fa6d184fa180b9ad0b6fd0cf54c46936
 
 Params:
 
-- **period** - _Type: Integer/Float_ - _Positional argument_ - Max rate per second the function can run
+- **num_calls** - _Type: Integer/Float_ - _Named Argument_ - Maximum method invocations within a period. Must be greater than 0.
+- **every** - _Type: Integer/Float_ - _Named Argument_ - A dampening factor (in seconds). Can be any number greater than 0.
 
 ----------
 
