@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.6.0',
+    version='2.6.1',
     description='A collection of useful functions',
     author='Eddy Hintze',
     author_email="eddy.hintze@gmail.com",
@@ -19,6 +19,7 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=['hashids',
+                      'psycopg2',
                       'pytz',
                       ]
 )
