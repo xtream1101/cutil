@@ -311,7 +311,7 @@ def dump_json(file_, data, **kwargs):
 
 
 # Lets only do this once
-price_pattern = re.compile('(?P<low>[\d,.]+)(?:\D*(?P<high>[\d,.]+))?')
+price_pattern = re.compile('(?P<low>[\d,.\s]+)(?:\D*(?P<high>[\d,.\s]+))?')
 
 
 def parse_price(price):
@@ -326,7 +326,8 @@ def parse_price(price):
 
     for key, value in found_price.items():
         if value is not None:
-            new_value = value.replace(',', '').replace('.', '')
+            value = value.strip()
+            new_value = value.replace(',', '').replace('.', '').replace(' ', '')
             try:
                 # Check if price has cents
                 if value[-3] in [',', '.']:
