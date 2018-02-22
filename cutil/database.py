@@ -79,11 +79,13 @@ class Database:
             # Do not return here, let the exception handle the error that will be thrown when the query runs
 
         # Make sure return_cols is a list
-        if not isinstance(return_cols, list):
-            return_cols = [return_cols]
-            return_cols = 'RETURNING ' + ','.join(return_cols)
-        if len(return_cols) == 0 or return_cols[0] is None:
+        if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
             return_cols = ''
+        elif not isinstance(return_cols, list):
+            return_cols = [return_cols]
+
+        if len(return_cols) > 0:
+            return_cols = 'RETURNING ' + ','.join(return_cols)
 
         try:
             with self.getcursor() as cur:
@@ -100,7 +102,10 @@ class Database:
                 query = cur.mogrify(query, values)
                 cur.execute(query)
 
-                return cur.fetchall()
+                try:
+                    return cur.fetchall()
+                except Exception:
+                    return None
 
         except Exception as e:
             logger.exception("Error inserting data")
@@ -140,11 +145,13 @@ class Database:
             return None
 
         # Make sure return_cols is a list
-        if not isinstance(return_cols, list):
-            return_cols = [return_cols]
-            return_cols = 'RETURNING ' + ','.join(return_cols)
-        if len(return_cols) == 0 or return_cols[0] is None:
+        if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
             return_cols = ''
+        elif not isinstance(return_cols, list):
+            return_cols = [return_cols]
+
+        if len(return_cols) > 0:
+            return_cols = 'RETURNING ' + ','.join(return_cols)
 
         # Make sure update_fields is a list/valid
         if on_conflict_action == 'update':
@@ -192,7 +199,10 @@ class Database:
 
                 cur.execute(query)
 
-                return cur.fetchall()
+                try:
+                    return cur.fetchall()
+                except Exception:
+                    return None
 
         except Exception as e:
             logger.exception("Error upserting data")
@@ -221,11 +231,13 @@ class Database:
             return []
 
         # Make sure return_cols is a list
-        if not isinstance(return_cols, list):
-            return_cols = [return_cols]
-            return_cols = 'RETURNING ' + ','.join(return_cols)
-        if len(return_cols) == 0 or return_cols[0] is None:
+        if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
             return_cols = ''
+        elif not isinstance(return_cols, list):
+            return_cols = [return_cols]
+
+        if len(return_cols) > 0:
+            return_cols = 'RETURNING ' + ','.join(return_cols)
 
         # Data in the list must be dicts (just check the first one)
         if not isinstance(data_list[0], dict):
@@ -265,7 +277,10 @@ class Database:
                 finial_query = b';'.join(query_list)
                 cur.execute(finial_query)
 
-                return return_list
+                try:
+                    return cur.fetchall()
+                except Exception:
+                    return None
 
         except Exception as e:
             logger.exception("Error updating data")
