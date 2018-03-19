@@ -336,7 +336,11 @@ def parse_price(price):
             except IndexError:
                 # Price is 99 or less with no cents
                 pass
-            found_price[key] = float(new_value)
+
+            if new_value != '':
+                found_price[key] = float(new_value)
+            else:
+                found_price[key] = None
 
     return found_price
 
