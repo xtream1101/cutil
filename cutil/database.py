@@ -1,4 +1,5 @@
 import sys
+import copy
 import json
 import logging
 from contextlib import contextmanager
@@ -64,7 +65,7 @@ class Database:
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
-        data_list = data_list.copy()  # Create copy so the original list does not get modified
+        data_list = copy.deepcopy(data_list)  # Create deepcopy so the original list does not get modified
         # Make sure that `data_list` is a list
         if not isinstance(data_list, list):
             data_list = [data_list]
@@ -120,7 +121,7 @@ class Database:
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
-        data_list = data_list.copy()  # Create copy so the original list does not get modified
+        data_list = copy.deepcopy(data_list)  # Create deepcopy so the original list does not get modified
         # Make sure that `data_list` is a list
         if not isinstance(data_list, list):
             data_list = [data_list]
@@ -216,7 +217,7 @@ class Database:
 
         TODO: Is there a limit of length the query can be? If so handle it.
         """
-        data_list = data_list.copy()  # Create copy so the original list does not get modified
+        data_list = copy.deepcopy(data_list)  # Create deepcopy so the original list does not get modified
         if matched_field is None:
             # Assume the id field
             logger.info("Matched field not defined, assuming the `id` field")
