@@ -10,7 +10,7 @@ except (IOError, ImportError) as e:
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.6.6',
+    version='2.6.7',
     description='A collection of useful functions',
     long_description=long_description,
     author='Eddy Hintze',
@@ -26,7 +26,7 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=['hashids',
-                      'psycopg2-binary',
+                      'psycopg2',
                       'pytz',
                       ]
 )
