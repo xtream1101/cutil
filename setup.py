@@ -1,18 +1,15 @@
-from distutils.core import setup
+from setuptools import setup
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst', format='md')
-except (IOError, ImportError) as e:
-    print(str(e))
-    long_description = ''
+with open('README.md', 'r') as f:
+    long_description = f.read()
 
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.6.7',
+    version='2.6.8',
     description='A collection of useful functions',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Eddy Hintze',
     author_email="eddy@hintze.co",
     url="https://github.com/xtream1101/cutil",
