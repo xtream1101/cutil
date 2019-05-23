@@ -492,7 +492,6 @@ Params:
 ----------
 
 #### fn: **update**
-**WIP**
 Returns a list of the column value for all rows updated (this is currently faked by using the data passed in).
 
 Params:

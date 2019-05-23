@@ -169,7 +169,7 @@ class Database:
 
             # If everything is good to go with the update fields
             fields_update_tmp = []
-            for key in data_list[0].keys():
+            for key in update_fields:
                 fields_update_tmp.append('"{0}"="excluded"."{0}"'.format(key))
             conflict_action_sql = 'UPDATE SET {update_fields}'\
                                   .format(update_fields=', '.join(fields_update_tmp))
