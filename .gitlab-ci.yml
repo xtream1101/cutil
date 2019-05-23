@@ -1,0 +1,14 @@
+image: python:3.5
+
+stages:
+  - release
+
+release-package:
+  stage: release
+  only:
+    - master
+  script:
+    - pip install twine
+    - rm -f dist/*
+    - python setup.py sdist
+    - twine upload -u ${PYPI_USER} -p ${PYPI_PASS} dist/*
