@@ -27,8 +27,8 @@ class Database:
 
         self.table_raw = table_raw
         try:
-            # Set default port is port is not passed
-            if 'db_port' not in db_config:
+            # Set default port is port is not set
+            if not db_config.get('db_port'):
                 db_config['db_port'] = 5432
 
             self.pool = ThreadedConnectionPool(minconn=1,
