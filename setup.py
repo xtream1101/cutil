@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.6.10',
+    version='2.7.0',
     description='A collection of useful functions',
     long_description=long_description,
     long_description_content_type='text/markdown',

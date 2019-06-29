@@ -26,20 +26,14 @@ class Database:
         from psycopg2.pool import ThreadedConnectionPool
 
         self.table_raw = table_raw
-        try:
-            # Set default port is port is not set
-            if not db_config.get('db_port'):
-                db_config['db_port'] = 5432
+        # Set default port is port is not set
+        if not db_config.get('db_port'):
+            db_config['db_port'] = 5432
 
-            self.pool = ThreadedConnectionPool(minconn=1,
-                                               maxconn=max_connections,
-                                               dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass} port={db_port}"
-                                                   .format(**db_config))
-        except Exception:
-            logger.exception("Error in db connection")
-            sys.exit(1)
-
-        logger.debug("Connected to database: {host}".format(host=db_config['db_host']))
+        self.pool = ThreadedConnectionPool(minconn=1,
+                                            maxconn=max_connections,
+                                            dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass} port={db_port}"
+                                                .format(**db_config))
 
     @contextmanager
     def getcursor(self, **kwargs):
@@ -76,8 +70,7 @@ class Database:
 
         # Data in the list must be dicts (just check the first one)
         if not isinstance(data_list[0], dict):
-            logger.critical("Data must be a list of dicts")
-            # Do not return here, let the exception handle the error that will be thrown when the query runs
+            raise ValueError("Data must be a list of dicts")
 
         # Make sure return_cols is a list
         if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
@@ -109,7 +102,6 @@ class Database:
                     return None
 
         except Exception as e:
-            logger.exception("Error inserting data")
             logger.debug("Error inserting data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
 
@@ -131,9 +123,7 @@ class Database:
             return []
         # Data in the list must be dicts (just check the first one)
         if not isinstance(data_list[0], dict):
-            logger.critical("Data must be a list of dicts")
-            # TODO: raise some error here rather then returning None
-            return None
+            raise ValueError("Data must be a list of dicts")
 
         # Make sure on_conflict_fields is a list
         if not isinstance(on_conflict_fields, list):
@@ -141,9 +131,7 @@ class Database:
         # Make sure on_conflict_fields has data
         if len(on_conflict_fields) == 0 or on_conflict_fields[0] is None:
             # No need to continue
-            logger.critical("Must pass in `on_conflict_fields` argument")
-            # TODO: raise some error here rather then returning None
-            return None
+            raise ValueError("Must pass in `on_conflict_fields` argument")
 
         # Make sure return_cols is a list
         if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
@@ -163,9 +151,7 @@ class Database:
                 update_fields = list(set(data_list[0].keys()) - set(on_conflict_fields))
                 # If update_fields is empty here that could only mean that all fields are set as conflict_fields
                 if len(update_fields) == 0:
-                    logger.critical("Not all the fields can be `on_conflict_fields` when doing an update")
-                    # TODO: raise some error here rather then returning None
-                    return None
+                    raise ValueError("Not all the fields can be `on_conflict_fields` when doing an update")
 
             # If everything is good to go with the update fields
             fields_update_tmp = []
@@ -206,7 +192,6 @@ class Database:
                     return None
 
         except Exception as e:
-            logger.exception("Error upserting data")
             logger.debug("Error upserting data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
 
@@ -242,7 +227,7 @@ class Database:
 
         # Data in the list must be dicts (just check the first one)
         if not isinstance(data_list[0], dict):
-            logger.critical("Data must be a list of dicts")
+            raise ValueError("Data must be a list of dicts")
             # Do not return here, let the exception handle the error that will be thrown when the query runs
 
         try:
@@ -284,6 +269,5 @@ class Database:
                     return None
 
         except Exception as e:
-            logger.exception("Error updating data")
             logger.debug("Error updating data: {data}".format(data=data_list))
             raise e.with_traceback(sys.exc_info()[2])
