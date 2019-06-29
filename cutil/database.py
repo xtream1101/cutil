@@ -44,7 +44,7 @@ class Database:
 
         except Exception as e:
             conn.rollback()
-            raise e.with_traceback(sys.exc_info()[2])
+            raise
 
         finally:
             self.pool.putconn(conn)
@@ -103,7 +103,7 @@ class Database:
 
         except Exception as e:
             logger.debug("Error inserting data: {data}".format(data=data_list))
-            raise e.with_traceback(sys.exc_info()[2])
+            raise
 
     def upsert(self, table, data_list, on_conflict_fields, on_conflict_action='update',
                update_fields=None, return_cols='id'):
@@ -193,7 +193,7 @@ class Database:
 
         except Exception as e:
             logger.debug("Error upserting data: {data}".format(data=data_list))
-            raise e.with_traceback(sys.exc_info()[2])
+            raise
 
     def update(self, table, data_list, matched_field=None, return_cols='id'):
         """
@@ -228,7 +228,6 @@ class Database:
         # Data in the list must be dicts (just check the first one)
         if not isinstance(data_list[0], dict):
             raise ValueError("Data must be a list of dicts")
-            # Do not return here, let the exception handle the error that will be thrown when the query runs
 
         try:
             with self.getcursor() as cur:
@@ -270,4 +269,4 @@ class Database:
 
         except Exception as e:
             logger.debug("Error updating data: {data}".format(data=data_list))
-            raise e.with_traceback(sys.exc_info()[2])
+            raise
