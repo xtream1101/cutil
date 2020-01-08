@@ -3,10 +3,14 @@ from setuptools import setup
 with open('README.md', 'r') as f:
     long_description = f.read()
 
+postgres = [
+    'psycopg2',
+]
+
 setup(
     name='cutil',
     packages=['cutil'],
-    version='2.7.1',
+    version='3.0.0',
     description='A collection of useful functions',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -22,8 +26,11 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=['hashids',
-                      'psycopg2',
-                      'pytz',
-                      ]
+    install_requires=[
+        'hashids',
+        'pytz',
+    ],
+    extras_require={
+        'postgres': postgres,
+    }
 )
