@@ -25,6 +25,7 @@ $ sudo pip install pillow
 
 ## Install
 - `$ pip3 install cutil`
+- `$ pip3 install cutil[postgres]`
 
 ## Usage
 
