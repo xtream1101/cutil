@@ -311,7 +311,7 @@ def dump_json(file_, data, **kwargs):
 
 
 # Lets only do this once
-price_pattern = re.compile('(?P<low>[\d,.\s]+)(?:\D*(?P<high>[\d,.\s]+))?')
+price_pattern = re.compile(r'(?P<low>[\d,.\s]+)(?:\D*(?P<high>[\d,.\s]+))?')
 
 
 def parse_price(price):
@@ -403,6 +403,7 @@ def rate_limited(num_calls=1, every=1.0):
 
     """
     frequency = abs(every) / float(num_calls)
+
     def decorator(func):
         """
         Extend the behaviour of the following
@@ -495,7 +496,7 @@ def timeit(stat_tracker_func, name):
 # Regex
 ####
 # Keep re.compile's outside of fn as to only create it once
-proxy_parts_pattern = re.compile('^(?:(?P<schema>\w+):\/\/)(?:(?P<user>.*):(?P<password>.*)@)?(?P<host>[^:]*)(?::(?P<port>\d+))?$')
+proxy_parts_pattern = re.compile(r'^(?:(?P<schema>\w+):\/\/)(?:(?P<user>.*):(?P<password>.*)@)?(?P<host>[^:]*)(?::(?P<port>\d+))?$')  # noqa: E501
 
 
 def get_proxy_parts(proxy):
@@ -530,7 +531,7 @@ def remove_html_tag(input_str='', tag=None):
     """
     result = input_str
     if tag is not None:
-        pattern = re.compile('<{tag}[\s\S]+?/{tag}>'.format(tag=tag))
+        pattern = re.compile(r'<{tag}[\s\S]+?/{tag}>'.format(tag=tag))
         result = re.sub(pattern, '', str(input_str))
 
     return result

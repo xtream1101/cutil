@@ -1,6 +1,4 @@
-import sys
 import copy
-import json
 import logging
 from contextlib import contextmanager
 
@@ -8,16 +6,16 @@ logger = logging.getLogger(__name__)
 
 
 def _check_values(in_values):
-        """ Check if values need to be converted before they get mogrify'd
-        """
-        out_values = []
-        for value in in_values:
-            # if isinstance(value, (dict, list)):
-            #     out_values.append(json.dumps(value))
-            # else:
-            out_values.append(value)
+    """ Check if values need to be converted before they get mogrify'd
+    """
+    out_values = []
+    for value in in_values:
+        # if isinstance(value, (dict, list)):
+        #     out_values.append(json.dumps(value))
+        # else:
+        out_values.append(value)
 
-        return tuple(out_values)
+    return tuple(out_values)
 
 
 class Database:
@@ -31,9 +29,9 @@ class Database:
             db_config['db_port'] = 5432
 
         self.pool = ThreadedConnectionPool(minconn=1,
-                                            maxconn=max_connections,
-                                            dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass} port={db_port}"
-                                                .format(**db_config))
+                                           maxconn=max_connections,
+                                           dsn="dbname={db_name} user={db_user} host={db_host} password={db_pass} port={db_port}"  # noqa: E501
+                                               .format(**db_config))
 
     @contextmanager
     def getcursor(self, **kwargs):
@@ -42,7 +40,7 @@ class Database:
             yield conn.cursor(**kwargs)
             conn.commit()
 
-        except Exception as e:
+        except Exception:
             conn.rollback()
             raise
 
@@ -101,7 +99,7 @@ class Database:
                 except Exception:
                     return None
 
-        except Exception as e:
+        except Exception:
             logger.debug("Error inserting data: {data}".format(data=data_list))
             raise
 
@@ -191,7 +189,7 @@ class Database:
                 except Exception:
                     return None
 
-        except Exception as e:
+        except Exception:
             logger.debug("Error upserting data: {data}".format(data=data_list))
             raise
 
@@ -267,6 +265,6 @@ class Database:
                 except Exception:
                     return None
 
-        except Exception as e:
+        except Exception:
             logger.debug("Error updating data: {data}".format(data=data_list))
             raise
