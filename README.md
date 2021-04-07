@@ -487,6 +487,7 @@ Params:
 - **data_list** - _Type: List/Dict_ - _Positional argument_ - List or Dict of data to insert. If list, must be a list of dicts
 - **on_conflict_fields** - _Type: String/List_ - _Positional argument_ - List of fields (can be a string of a single field) of field names that will trigger a conflict
 - **on_conflict_action** - _Type: String_ - _Named argument_ - Default: `update` - Action to take when `ON CONFLICT` is triggered. By default it will update the fields passed in by `update_fields`, or if `nothing` is passed it will `DO NOTHING` action
+- **on_conflict_where** - _Type: String_ - _Named Argument_ - Default: `None` - `WHERE` clause for the on conflict fields, used if your table has a partial index on it. (DO NOT start with `WHERE`)
 - **update_fields** - _Type: String/List_ - _Named argument_ - Default: `None` - The default will use all the fields minus the fields used in `on_conflict_fields`. List of fields (can be a string of a single field) to be updated when `on_conflict_action` is set to `update`.
 - **return_cols** - _Type: String/List_ - _Named argument_ - Default: `id` - List of fields (can be a string of a single field) to be returned of rows affected.
 

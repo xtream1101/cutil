@@ -104,7 +104,7 @@ class Database:
             raise
 
     def upsert(self, table, data_list, on_conflict_fields, on_conflict_action='update',
-               update_fields=None, return_cols='id'):
+               on_conflict_where=None, update_fields=None, return_cols='id'):
         """
         Create a bulk upsert statement which is much faster (~6x in tests with 10k & 100k rows and n cols)
         for upserting data then executemany()
@@ -130,6 +130,12 @@ class Database:
         if len(on_conflict_fields) == 0 or on_conflict_fields[0] is None:
             # No need to continue
             raise ValueError("Must pass in `on_conflict_fields` argument")
+
+        # Support for partial index on table
+        if on_conflict_where:
+            on_conflict_where = f'WHERE {on_conflict_where}'
+        else:
+            on_conflict_where = ''
 
         # Make sure return_cols is a list
         if return_cols is None or len(return_cols) == 0 or return_cols[0] is None:
@@ -165,13 +171,14 @@ class Database:
             with self.getcursor() as cur:
                 query = """INSERT INTO {table} ({insert_fields})
                            VALUES {values}
-                           ON CONFLICT ({on_conflict_fields}) DO
+                           ON CONFLICT ({on_conflict_fields}) {on_conflict_where} DO
                            {conflict_action_sql}
                            {return_cols}
                         """.format(table=table,
                                    insert_fields='"{0}"'.format('","'.join(data_list[0].keys())),
                                    values=','.join(['%s'] * len(data_list)),
                                    on_conflict_fields=','.join(on_conflict_fields),
+                                   on_conflict_where=on_conflict_where,
                                    conflict_action_sql=conflict_action_sql,
                                    return_cols=return_cols,
                                    )
