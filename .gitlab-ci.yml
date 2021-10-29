@@ -20,7 +20,7 @@ pytest:
     - tags
   script:
     - pip install tox
-    - tox -e py37
+    - tox -e py3
 
 pypi-package:
   stage: package
