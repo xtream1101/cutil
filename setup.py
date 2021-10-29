@@ -4,13 +4,13 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 postgres = [
-    'psycopg2',
+    'psycopg2-binary',
 ]
 
 setup(
     name='cutil',
     packages=['cutil'],
-    version='3.0.1',
+    version='3.0.2',
     description='A collection of useful functions',
     long_description=long_description,
     long_description_content_type='text/markdown',
