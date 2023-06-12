@@ -10,7 +10,7 @@ postgres = [
 setup(
     name='cutil',
     packages=['cutil'],
-    version='3.0.2',
+    version='3.0.3',
     description='A collection of useful functions',
     long_description=long_description,
     long_description_content_type='text/markdown',
